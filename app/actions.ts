@@ -29,21 +29,32 @@ export async function createTask(formData: FormData) {
   const client = getSupabaseAdminClient();
   if (!client) return;
 
+  const title = getValue(formData, "title").trim();
+  const owner = getValue(formData, "owner").trim();
+
+  if (!title || !owner) {
+    return;
+  }
+
   const payload = {
-    title: getValue(formData, "title"),
+    title,
     description: getValue(formData, "description") || null,
-    category: getValue(formData, "category"),
-    phase: getValue(formData, "phase"),
-    status: getValue(formData, "status"),
-    priority: getValue(formData, "priority"),
-    owner: getValue(formData, "owner"),
+    category: getValue(formData, "category") || "build",
+    phase: getValue(formData, "phase") || "foundation",
+    status: getValue(formData, "status") || "not_started",
+    priority: getValue(formData, "priority") || "medium",
+    owner,
     due_date: getValue(formData, "due_date") || null,
     start_date: getValue(formData, "start_date") || null,
-    dependency_notes: getValue(formData, "dependency_notes") || null,
+    dependency_notes: null,
     notes: getValue(formData, "notes") || null
   };
 
-  const { data } = await client.from("launch_tasks").insert(payload).select("id").single();
+  const { data, error } = await client.from("launch_tasks").insert(payload).select("id").single();
+  if (error) {
+    console.error("createTask failed", error);
+    return;
+  }
   await createActivity(`Task created: ${payload.title}`, "launch_tasks", data?.id ?? null, "task_update");
   revalidatePath("/tasks");
   revalidatePath("/dashboard");
@@ -67,7 +78,7 @@ export async function updateTask(formData: FormData) {
     owner: getValue(formData, "owner"),
     due_date: getValue(formData, "due_date") || null,
     start_date: getValue(formData, "start_date") || null,
-    dependency_notes: getValue(formData, "dependency_notes") || null,
+    dependency_notes: null,
     notes: getValue(formData, "notes") || null,
     completed_at: status === "done" ? new Date().toISOString() : null
   }).eq("id", id);

@@ -73,10 +73,6 @@ export function TaskCreateForm({ action }: { action: (formData: FormData) => Pro
         <textarea id="task-description" name="description" />
       </div>
       <div className="field" style={{ gridColumn: "1 / -1" }}>
-        <label htmlFor="task-dependency-notes">Dependency notes</label>
-        <textarea id="task-dependency-notes" name="dependency_notes" />
-      </div>
-      <div className="field" style={{ gridColumn: "1 / -1" }}>
         <label htmlFor="task-notes">Notes</label>
         <textarea id="task-notes" name="notes" />
       </div>
@@ -378,8 +374,7 @@ export function TaskEditForm({
       <input type="date" name="start_date" defaultValue={task.start_date || ""} />
       <input type="date" name="due_date" defaultValue={task.due_date || ""} />
       <input name="description" defaultValue={task.description || ""} placeholder="Description" />
-      <input name="dependency_notes" defaultValue={task.dependency_notes || ""} placeholder="Dependency notes" />
-      <input name="notes" defaultValue={task.notes || ""} placeholder="Notes" />
+      <input name="notes" defaultValue={task.notes || task.dependency_notes || ""} placeholder="Notes" />
       <button className="ghost-button" type="submit">Save</button>
     </form>
   );

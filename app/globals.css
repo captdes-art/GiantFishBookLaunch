@@ -124,8 +124,8 @@ textarea {
 
 .card-grid {
   display: grid;
-  gap: 16px;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
 }
 
 .card,
@@ -143,7 +143,7 @@ textarea {
 .panel,
 .table-wrap,
 .empty-state {
-  padding: 18px;
+  padding: 14px;
 }
 
 .card h3,
@@ -354,7 +354,16 @@ th {
 }
 
 .compact-cards .metric {
-  font-size: 1.35rem;
+  font-size: 1.15rem;
+}
+
+.compact-cards .card h3 {
+  font-size: 0.78rem;
+  margin-bottom: 6px;
+}
+
+.compact-cards .metric-subtle {
+  font-size: 0.8rem;
 }
 
 .task-edit-list {
