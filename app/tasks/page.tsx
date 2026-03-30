@@ -1,5 +1,5 @@
-import { createTask, updateTaskStatus } from "@/app/actions";
-import { TaskCreateForm } from "@/components/forms";
+import { createTask, updateTask } from "@/app/actions";
+import { TaskCreateForm, TaskEditForm } from "@/components/forms";
 import { Badge, DateCell, FilterLinks, PageHeader } from "@/components/ui";
 import { getTasks } from "@/lib/data";
 
@@ -60,50 +60,22 @@ export default async function TasksPage({ searchParams }: PageProps) {
         <TaskCreateForm action={createTask} />
       </section>
 
-      <section className="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Title</th>
-              <th>Category</th>
-              <th>Phase</th>
-              <th>Priority</th>
-              <th>Owner</th>
-              <th>Due</th>
-              <th>Status</th>
-              <th>Notes</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filtered.map((task) => (
-              <tr key={task.id}>
-                <td>
+      <section className="panel">
+        <h3>Edit tasks</h3>
+        <div className="task-edit-list">
+          {filtered.map((task) => (
+            <div key={task.id} className="task-edit-card">
+              <div className="task-edit-header">
+                <div>
                   <strong>{task.title}</strong>
-                  <div className="small">{task.description || "No description"}</div>
-                </td>
-                <td>{task.category.replaceAll("_", " ")}</td>
-                <td>{task.phase.replaceAll("_", " ")}</td>
-                <td><Badge label={task.priority} tone={task.priority === "critical" ? "danger" : task.priority === "high" ? "warning" : "neutral"} /></td>
-                <td>{task.owner}</td>
-                <td><DateCell value={task.due_date} /></td>
-                <td>
-                  <form action={updateTaskStatus} className="actions">
-                    <input type="hidden" name="id" value={task.id} />
-                    <select name="status" defaultValue={task.status}>
-                      <option value="not_started">not_started</option>
-                      <option value="in_progress">in_progress</option>
-                      <option value="blocked">blocked</option>
-                      <option value="waiting">waiting</option>
-                      <option value="done">done</option>
-                    </select>
-                    <button className="ghost-button" type="submit">Save</button>
-                  </form>
-                </td>
-                <td>{task.notes || task.dependency_notes || "—"}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                  <div className="small">{task.category.replaceAll("_", " ")} • {task.phase.replaceAll("_", " ")}</div>
+                </div>
+                <Badge label={task.priority} tone={task.priority === "critical" ? "danger" : task.priority === "high" ? "warning" : "neutral"} />
+              </div>
+              <TaskEditForm action={updateTask} task={task} />
+            </div>
+          ))}
+        </div>
       </section>
     </div>
   );

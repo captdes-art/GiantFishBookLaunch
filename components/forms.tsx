@@ -335,6 +335,56 @@ export function SettingsForm({
   );
 }
 
+export function TaskEditForm({
+  action,
+  task
+}: {
+  action: (formData: FormData) => Promise<void>;
+  task: {
+    id: string;
+    title: string;
+    description: string | null;
+    category: string;
+    phase: string;
+    status: string;
+    priority: string;
+    owner: string;
+    due_date: string | null;
+    start_date?: string | null;
+    dependency_notes?: string | null;
+    notes?: string | null;
+  };
+}) {
+  return (
+    <form action={action} className="task-edit-grid">
+      <input type="hidden" name="id" value={task.id} />
+      <input name="title" defaultValue={task.title} placeholder="Title" required />
+      <input name="owner" defaultValue={task.owner} placeholder="Owner" required />
+      <select name="category" defaultValue={task.category}>
+        <OptionList values={TASK_CATEGORIES} />
+      </select>
+      <select name="phase" defaultValue={task.phase}>
+        <OptionList values={TASK_PHASES} />
+      </select>
+      <select name="status" defaultValue={task.status}>
+        <OptionList values={TASK_STATUSES} />
+      </select>
+      <select name="priority" defaultValue={task.priority}>
+        <option value="low">low</option>
+        <option value="medium">medium</option>
+        <option value="high">high</option>
+        <option value="critical">critical</option>
+      </select>
+      <input type="date" name="start_date" defaultValue={task.start_date || ""} />
+      <input type="date" name="due_date" defaultValue={task.due_date || ""} />
+      <input name="description" defaultValue={task.description || ""} placeholder="Description" />
+      <input name="dependency_notes" defaultValue={task.dependency_notes || ""} placeholder="Dependency notes" />
+      <input name="notes" defaultValue={task.notes || ""} placeholder="Notes" />
+      <button className="ghost-button" type="submit">Save</button>
+    </form>
+  );
+}
+
 export function PurchaseUpdateForm({
   action,
   id,

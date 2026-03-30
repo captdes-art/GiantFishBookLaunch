@@ -22,23 +22,13 @@ export default async function DashboardPage() {
 
   return (
     <div className="page">
-      <section className="hero">
-        <h2>Launch target: {settings.launch_target_date}</h2>
-        <p>One-screen operational view for the Giant Fish & Happiness V1 launch command center.</p>
-        <div className="meta">
-          <span>Countdown: {countdown} days</span>
-          <span>Current phase: {settings.launch_phase.replaceAll("_", " ")}</span>
-          <span>Manual-first coupon workflow</span>
-          <span>Draft-only communications until approval</span>
-        </div>
-      </section>
-
       <PageHeader
         title="Dashboard"
         description="High-signal summary of what matters now, what is blocked, and what still needs human action."
       />
 
-      <div className="card-grid">
+      <div className="card-grid compact-cards">
+        <MetricCard label="Launch date" value={settings.launch_target_date} note={`${countdown} days • ${settings.launch_phase.replaceAll("_", " ")}`} />
         <MetricCard label="Overdue tasks" value={overdueTasks.length} />
         <MetricCard label="Open blockers" value={blockers.length} />
         <MetricCard label="Launch team count" value={officialLaunchTeam.length} note="Counts only people who explicitly agreed to read and review." />

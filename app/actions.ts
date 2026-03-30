@@ -49,19 +49,30 @@ export async function createTask(formData: FormData) {
   revalidatePath("/dashboard");
 }
 
-export async function updateTaskStatus(formData: FormData) {
+export async function updateTask(formData: FormData) {
   if (!hasSupabaseEnv()) return;
   const client = getSupabaseAdminClient();
   if (!client) return;
+
   const id = getValue(formData, "id");
   const status = getValue(formData, "status");
 
   await client.from("launch_tasks").update({
+    title: getValue(formData, "title"),
+    description: getValue(formData, "description") || null,
+    category: getValue(formData, "category"),
+    phase: getValue(formData, "phase"),
     status,
+    priority: getValue(formData, "priority"),
+    owner: getValue(formData, "owner"),
+    due_date: getValue(formData, "due_date") || null,
+    start_date: getValue(formData, "start_date") || null,
+    dependency_notes: getValue(formData, "dependency_notes") || null,
+    notes: getValue(formData, "notes") || null,
     completed_at: status === "done" ? new Date().toISOString() : null
   }).eq("id", id);
 
-  await createActivity(`Task status updated to ${status}`, "launch_tasks", id, "task_update");
+  await createActivity(`Task updated: ${getValue(formData, "title") || id}`, "launch_tasks", id, "task_update");
   revalidatePath("/tasks");
   revalidatePath("/dashboard");
 }
