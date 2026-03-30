@@ -1,5 +1,6 @@
 "use server";
 
+import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { getSupabaseAdminClient, hasSupabaseEnv } from "@/lib/supabase";
 import { slugify } from "@/lib/utils";
@@ -58,6 +59,7 @@ export async function createTask(formData: FormData) {
   await createActivity(`Task created: ${payload.title}`, "launch_tasks", data?.id ?? null, "task_update");
   revalidatePath("/tasks");
   revalidatePath("/dashboard");
+  redirect("/tasks?saved=task-created");
 }
 
 export async function updateTask(formData: FormData) {
@@ -86,6 +88,7 @@ export async function updateTask(formData: FormData) {
   await createActivity(`Task updated: ${getValue(formData, "title") || id}`, "launch_tasks", id, "task_update");
   revalidatePath("/tasks");
   revalidatePath("/dashboard");
+  redirect("/tasks?saved=task-updated");
 }
 
 export async function createLaunchTeamMember(formData: FormData) {

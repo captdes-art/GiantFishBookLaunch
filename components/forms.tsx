@@ -24,7 +24,7 @@ function OptionList({ values }: { values: readonly string[] }) {
 
 export function TaskCreateForm({ action }: { action: (formData: FormData) => Promise<void> }) {
   return (
-    <form action={action} className="form-grid compact">
+    <form action={action} method="post" className="form-grid compact">
       <div className="field">
         <label htmlFor="task-title">Title</label>
         <input id="task-title" name="title" required />
@@ -352,7 +352,7 @@ export function TaskEditForm({
   };
 }) {
   return (
-    <form action={action} className="task-edit-grid">
+    <form action={action} method="post" className="task-edit-grid">
       <input type="hidden" name="id" value={task.id} />
       <input name="title" defaultValue={task.title} placeholder="Title" required />
       <input name="owner" defaultValue={task.owner} placeholder="Owner" required />
