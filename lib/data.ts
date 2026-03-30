@@ -21,20 +21,26 @@ import type {
   Review
 } from "@/lib/types";
 
-async function readTable<T>(table: string, select = "*", orderBy = "created_at", ascending = false): Promise<T[]> {
+async function readTable<T>(
+  table: string,
+  fallback: T[],
+  select = "*",
+  orderBy = "created_at",
+  ascending = false
+): Promise<T[]> {
   const client = getSupabaseAdminClient();
 
   if (!client) {
-    return [];
+    return fallback;
   }
 
   const { data, error } = await client.from(table).select(select).order(orderBy, { ascending });
 
   if (error) {
-    throw error;
+    return fallback;
   }
 
-  return (data ?? []) as T[];
+  return (data ?? fallback) as T[];
 }
 
 export async function getSettings(): Promise<AppSettings> {
@@ -43,7 +49,11 @@ export async function getSettings(): Promise<AppSettings> {
   const client = getSupabaseAdminClient();
   if (!client) return mockSettings;
 
-  const { data } = await client.from("app_settings").select("*").eq("id", 1).single();
+  const { data, error } = await client.from("app_settings").select("*").eq("id", 1).single();
+
+  if (error) {
+    return mockSettings;
+  }
 
   return data ?? {
     ...mockSettings,
@@ -53,27 +63,27 @@ export async function getSettings(): Promise<AppSettings> {
 
 export async function getTasks(): Promise<LaunchTask[]> {
   if (!hasSupabaseEnv()) return mockTasks;
-  return readTable<LaunchTask>("launch_tasks", "*", "due_date", true);
+  return readTable<LaunchTask>("launch_tasks", mockTasks, "*", "due_date", true);
 }
 
 export async function getLaunchTeam(): Promise<LaunchTeamMember[]> {
   if (!hasSupabaseEnv()) return mockLaunchTeam;
-  return readTable<LaunchTeamMember>("launch_team_members", "*", "updated_at", false);
+  return readTable<LaunchTeamMember>("launch_team_members", mockLaunchTeam, "*", "updated_at", false);
 }
 
 export async function getOutreach(): Promise<OutreachContact[]> {
   if (!hasSupabaseEnv()) return mockOutreach;
-  return readTable<OutreachContact>("outreach_contacts", "*", "updated_at", false);
+  return readTable<OutreachContact>("outreach_contacts", mockOutreach, "*", "updated_at", false);
 }
 
 export async function getContent(): Promise<ContentItem[]> {
   if (!hasSupabaseEnv()) return mockContent;
-  return readTable<ContentItem>("content_items", "*", "scheduled_for", true);
+  return readTable<ContentItem>("content_items", mockContent, "*", "scheduled_for", true);
 }
 
 export async function getPurchases(): Promise<PurchaseSubmission[]> {
   if (!hasSupabaseEnv()) return mockPurchases;
-  return readTable<PurchaseSubmission>("purchase_submissions", "*", "submitted_at", false);
+  return readTable<PurchaseSubmission>("purchase_submissions", mockPurchases, "*", "submitted_at", false);
 }
 
 export async function getReviews(): Promise<Review[]> {
@@ -88,15 +98,15 @@ export async function getReviews(): Promise<Review[]> {
     .order("updated_at", { ascending: false });
 
   if (error) {
-    throw error;
+    return mockReviews;
   }
 
-  return (data ?? []) as Review[];
+  return (data ?? mockReviews) as Review[];
 }
 
 export async function getActivity(): Promise<ActivityLog[]> {
   if (!hasSupabaseEnv()) return mockActivity;
-  return readTable<ActivityLog>("activity_log", "*", "created_at", false);
+  return readTable<ActivityLog>("activity_log", mockActivity, "*", "created_at", false);
 }
 
 export async function getDashboardData() {

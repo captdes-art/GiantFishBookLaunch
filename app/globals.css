@@ -1,19 +1,19 @@
 :root {
-  --bg: #f4f1ea;
-  --panel: #fffdf8;
-  --panel-muted: #f7f3eb;
-  --text: #1d2a22;
-  --text-soft: #516055;
-  --line: #d6d0c3;
-  --accent: #284f3a;
-  --accent-soft: #dfeadf;
-  --warn: #8b5e16;
-  --warn-soft: #f6ebcf;
-  --danger: #8f3a2d;
-  --danger-soft: #f8dfd9;
-  --success: #2d6a4f;
-  --success-soft: #dff0e7;
-  --shadow: 0 18px 40px rgba(45, 41, 31, 0.08);
+  --bg: #edf2f8;
+  --panel: #ffffff;
+  --panel-muted: #eef3f8;
+  --text: #0f172a;
+  --text-soft: #526277;
+  --line: #d6dfeb;
+  --accent: #2563eb;
+  --accent-soft: #dbeafe;
+  --warn: #a16207;
+  --warn-soft: #fef3c7;
+  --danger: #b42318;
+  --danger-soft: #fee4e2;
+  --success: #067647;
+  --success-soft: #d1fadf;
+  --shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
 }
 
 * {
@@ -25,10 +25,10 @@ body {
   padding: 0;
   margin: 0;
   min-height: 100%;
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   background:
-    radial-gradient(circle at top left, rgba(231, 220, 196, 0.9), transparent 35%),
-    linear-gradient(180deg, #f7f3ec 0%, #f0ece3 100%);
+    radial-gradient(circle at top left, rgba(59, 130, 246, 0.12), transparent 28%),
+    linear-gradient(180deg, #f8fbff 0%, #edf3f9 100%);
   color: var(--text);
 }
 
@@ -57,7 +57,7 @@ textarea {
 .sidebar {
   padding: 28px 20px;
   border-right: 1px solid var(--line);
-  background: rgba(255, 251, 243, 0.86);
+  background: rgba(247, 250, 255, 0.92);
   backdrop-filter: blur(10px);
 }
 
@@ -134,7 +134,7 @@ textarea {
 .form-grid,
 .empty-state {
   background: var(--panel);
-  border: 1px solid rgba(118, 107, 88, 0.14);
+  border: 1px solid rgba(148, 163, 184, 0.2);
   border-radius: 18px;
   box-shadow: var(--shadow);
 }
@@ -350,7 +350,7 @@ th {
   display: grid;
   gap: 10px;
   padding: 22px;
-  background: linear-gradient(135deg, rgba(40, 79, 58, 0.95), rgba(74, 114, 89, 0.88));
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.98), rgba(37, 99, 235, 0.9));
   color: white;
   border-radius: 20px;
 }
