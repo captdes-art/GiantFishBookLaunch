@@ -89,27 +89,9 @@ export function LaunchTeamCreateForm({ action }: { action: (formData: FormData) 
       <div className="field"><label htmlFor="lt-name">Full name</label><input id="lt-name" name="full_name" required /></div>
       <div className="field"><label htmlFor="lt-email">Email</label><input id="lt-email" name="email" type="email" /></div>
       <div className="field"><label htmlFor="lt-phone">Phone</label><input id="lt-phone" name="phone" /></div>
-      <div className="field"><label htmlFor="lt-source">Source</label><input id="lt-source" name="source" /></div>
-      <div className="field">
-        <label htmlFor="lt-category">Category</label>
-        <select id="lt-category" name="category" defaultValue="friend">
-          <option value="friend">friend</option>
-          <option value="family">family</option>
-          <option value="cq_customer">cq_customer</option>
-          <option value="fishing_contact">fishing_contact</option>
-          <option value="faith_contact">faith_contact</option>
-          <option value="wellness_contact">wellness_contact</option>
-          <option value="reviewer">reviewer</option>
-          <option value="media">media</option>
-          <option value="other">other</option>
-        </select>
-      </div>
-      <div className="field">
-        <label htmlFor="lt-status">Status</label>
-        <select id="lt-status" name="status" defaultValue="prospect">
-          <OptionList values={LAUNCH_TEAM_STATUSES} />
-        </select>
-      </div>
+      <input type="hidden" name="source" value="" />
+      <input type="hidden" name="category" value="friend" />
+      <input type="hidden" name="status" value="prospect" />
       <div className="field">
         <label htmlFor="lt-follow-up">Follow-up due</label>
         <input id="lt-follow-up" type="date" name="follow_up_due" />
