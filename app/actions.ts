@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { getSupabaseAdminClient, hasSupabaseEnv } from "@/lib/supabase";
+import { hasResendEnv, sendArcEmail } from "@/lib/resend";
 import { slugify } from "@/lib/utils";
 
 async function createActivity(summary: string, entityType: string, entityId: string | null, eventType: string) {
@@ -390,4 +391,135 @@ export async function submitProofOfPurchase(
   revalidatePath("/dashboard");
 
   return { ok: true, message: "Proof received. Manual verification is now pending." };
+}
+
+export async function joinLaunchTeam(
+  _prevState: { ok: boolean; message: string },
+  formData: FormData
+): Promise<{ ok: boolean; message: string }> {
+  const fullName = getValue(formData, "full_name").trim();
+  const email = getValue(formData, "email").trim().toLowerCase();
+  const phone = getValue(formData, "phone").trim();
+
+  if (!fullName || !email) {
+    return { ok: false, message: "Name and email are required." };
+  }
+
+  if (!hasSupabaseEnv()) {
+    return { ok: true, message: "Saved in mock mode. Configure Supabase to persist." };
+  }
+
+  const client = getSupabaseAdminClient();
+  if (!client) {
+    return { ok: false, message: "Database unavailable. Please try again." };
+  }
+
+  // Check for existing signup by email
+  const { data: existing } = await client
+    .from("launch_team_members")
+    .select("id")
+    .ilike("email", email)
+    .limit(1)
+    .single();
+
+  if (existing) {
+    // Re-send the ARC email in case they lost it
+    if (hasResendEnv()) {
+      await sendArcEmail(email, fullName);
+      await client.from("launch_team_members").update({ arc_sent_at: new Date().toISOString() }).eq("id", existing.id);
+    }
+    return { ok: true, message: "You're already on the team! We just re-sent the book to your email." };
+  }
+
+  const now = new Date().toISOString();
+  const { data, error } = await client.from("launch_team_members").insert({
+    full_name: fullName,
+    email,
+    phone: phone || null,
+    source: "email_list_signup",
+    category: "cq_customer",
+    status: "arc_sent",
+    agreed_to_read_review: true,
+    agreed_at: now,
+    arc_sent: true,
+    arc_sent_at: now,
+    launch_party_invited: true,
+    notes: "Signed up via public launch team form",
+  }).select("id").single();
+
+  if (error) {
+    console.error("joinLaunchTeam insert failed:", error);
+    return { ok: false, message: "Something went wrong. Please try again." };
+  }
+
+  // Send the ARC email with PDF
+  if (hasResendEnv()) {
+    const emailResult = await sendArcEmail(email, fullName);
+    if (!emailResult.ok) {
+      console.error("ARC email failed:", emailResult.error);
+    }
+  }
+
+  await createActivity(`Launch team signup via public form: ${fullName}`, "launch_team_members", data?.id ?? null, "note");
+  revalidatePath("/launch-team");
+  revalidatePath("/dashboard");
+
+  return { ok: true, message: "You're in! Check your email for your advance copy of the book." };
+}
+
+export async function submitReviewLink(
+  _prevState: { ok: boolean; message: string },
+  formData: FormData
+): Promise<{ ok: boolean; message: string }> {
+  const email = getValue(formData, "email").trim().toLowerCase();
+  const reviewLink = getValue(formData, "review_link").trim();
+
+  if (!email || !reviewLink) {
+    return { ok: false, message: "Email and review link are both required." };
+  }
+
+  if (!reviewLink.includes("amazon.com")) {
+    return { ok: false, message: "Please submit your Amazon review link." };
+  }
+
+  if (!hasSupabaseEnv()) {
+    return { ok: true, message: "Saved in mock mode." };
+  }
+
+  const client = getSupabaseAdminClient();
+  if (!client) {
+    return { ok: false, message: "Database unavailable. Please try again." };
+  }
+
+  const { data: member } = await client
+    .from("launch_team_members")
+    .select("id, full_name")
+    .ilike("email", email)
+    .limit(1)
+    .single();
+
+  if (!member) {
+    return { ok: false, message: "We couldn't find that email in our launch team. Make sure you use the same email you signed up with." };
+  }
+
+  const now = new Date().toISOString();
+  const { error } = await client.from("launch_team_members").update({
+    review_posted: true,
+    review_posted_at: now,
+    review_link: reviewLink,
+    status: "reviewed",
+    launch_party_confirmed: true,
+  }).eq("id", member.id);
+
+  if (error) {
+    console.error("submitReviewLink update failed:", error);
+    return { ok: false, message: "Something went wrong. Please try again." };
+  }
+
+  await createActivity(`Review submitted by ${member.full_name}`, "launch_team_members", member.id, "review_update");
+  revalidatePath("/launch-team");
+  revalidatePath("/reviews");
+  revalidatePath("/dashboard");
+
+  return { ok: true, message: "Thank you! Your review has been recorded and your spot on the Celtic Quest launch party trip is confirmed. We'll be in touch with details!" };
 }
