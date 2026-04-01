@@ -250,6 +250,15 @@ th {
   color: var(--danger);
 }
 
+.success-banner {
+  background: var(--success-soft);
+  color: var(--success);
+  padding: 10px 16px;
+  border-radius: 6px;
+  font-weight: 500;
+  margin-bottom: 12px;
+}
+
 .toolbar,
 .filters {
   display: flex;

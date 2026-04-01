@@ -95,9 +95,11 @@ export async function createLaunchTeamMember(formData: FormData) {
   if (!hasSupabaseEnv()) return;
   const client = getSupabaseAdminClient();
   if (!client) return;
-  const name = getValue(formData, "full_name");
+  const name = getValue(formData, "full_name").trim();
 
-  const { data } = await client.from("launch_team_members").insert({
+  if (!name) return;
+
+  const { data, error } = await client.from("launch_team_members").insert({
     full_name: name,
     email: getValue(formData, "email") || null,
     phone: getValue(formData, "phone") || null,
@@ -109,9 +111,15 @@ export async function createLaunchTeamMember(formData: FormData) {
     notes: getValue(formData, "notes") || null
   }).select("id").single();
 
+  if (error) {
+    console.error("createLaunchTeamMember failed", error);
+    return;
+  }
+
   await createActivity(`Launch team record created: ${name}`, "launch_team_members", data?.id ?? null, "note");
   revalidatePath("/launch-team");
   revalidatePath("/dashboard");
+  redirect("/launch-team?view=prospects&saved=member-created");
 }
 
 export async function updateLaunchTeamStatus(formData: FormData) {

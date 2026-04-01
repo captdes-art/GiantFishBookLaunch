@@ -4,7 +4,7 @@ import { Badge, DateCell, FilterLinks, PageHeader } from "@/components/ui";
 import { getLaunchTeam } from "@/lib/data";
 
 type PageProps = {
-  searchParams?: Promise<{ view?: string }>;
+  searchParams?: Promise<{ view?: string; saved?: string }>;
 };
 
 function filterMembers(view: string, members: Awaited<ReturnType<typeof getLaunchTeam>>) {
@@ -32,13 +32,15 @@ function filterMembers(view: string, members: Awaited<ReturnType<typeof getLaunc
 
 export default async function LaunchTeamPage({ searchParams }: PageProps) {
   const params = (await searchParams) ?? {};
-  const view = params.view || "official";
+  const view = params.view || "prospects";
+  const saved = params.saved;
   const members = await getLaunchTeam();
   const filtered = filterMembers(view, members);
 
   return (
     <div className="page">
       <PageHeader title="Launch Team CRM" description="Track prospects, official launch team members, ARC progress, reviews, and launch party eligibility." />
+      {saved === "member-created" && <p className="success-banner">New launch team member added.</p>}
       <FilterLinks
         basePath="/launch-team"
         current={view}
