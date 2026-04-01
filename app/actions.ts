@@ -129,7 +129,7 @@ export async function updateLaunchTeamStatus(formData: FormData) {
   const id = getValue(formData, "id");
   const status = getValue(formData, "status");
 
-  await client.from("launch_team_members").update({
+  const { error } = await client.from("launch_team_members").update({
     status,
     agreed_to_read_review: ["agreed", "arc_sent", "reviewing", "reviewed"].includes(status),
     agreed_at: ["agreed", "arc_sent", "reviewing", "reviewed"].includes(status) ? new Date().toISOString() : null,
@@ -139,9 +139,15 @@ export async function updateLaunchTeamStatus(formData: FormData) {
     review_posted_at: status === "reviewed" ? new Date().toISOString() : null
   }).eq("id", id);
 
+  if (error) {
+    console.error("updateLaunchTeamStatus failed", error);
+    return;
+  }
+
   await createActivity(`Launch team status updated to ${status}`, "launch_team_members", id, "note");
   revalidatePath("/launch-team");
   revalidatePath("/dashboard");
+  redirect("/launch-team?saved=status-updated");
 }
 
 export async function createOutreachContact(formData: FormData) {

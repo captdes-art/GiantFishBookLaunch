@@ -41,6 +41,7 @@ export default async function LaunchTeamPage({ searchParams }: PageProps) {
     <div className="page">
       <PageHeader title="Launch Team CRM" description="Track prospects, official launch team members, ARC progress, reviews, and launch party eligibility." actions={<AddMemberButton action={createLaunchTeamMember} />} />
       {saved === "member-created" && <p className="success-banner">New launch team member added.</p>}
+      {saved === "status-updated" && <p className="success-banner">Status updated.</p>}
       <FilterLinks
         basePath="/launch-team"
         current={view}
