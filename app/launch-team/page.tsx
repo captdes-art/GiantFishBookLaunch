@@ -1,5 +1,5 @@
 import { createLaunchTeamMember, updateLaunchTeamStatus } from "@/app/actions";
-import { LaunchTeamCreateForm } from "@/components/forms";
+import { AddMemberButton } from "@/components/add-member-modal";
 import { Badge, DateCell, FilterLinks, PageHeader } from "@/components/ui";
 import { getLaunchTeam } from "@/lib/data";
 
@@ -39,7 +39,7 @@ export default async function LaunchTeamPage({ searchParams }: PageProps) {
 
   return (
     <div className="page">
-      <PageHeader title="Launch Team CRM" description="Track prospects, official launch team members, ARC progress, reviews, and launch party eligibility." />
+      <PageHeader title="Launch Team CRM" description="Track prospects, official launch team members, ARC progress, reviews, and launch party eligibility." actions={<AddMemberButton action={createLaunchTeamMember} />} />
       {saved === "member-created" && <p className="success-banner">New launch team member added.</p>}
       <FilterLinks
         basePath="/launch-team"
@@ -55,11 +55,6 @@ export default async function LaunchTeamPage({ searchParams }: PageProps) {
           { value: "launch_party", label: "Launch party eligible" }
         ]}
       />
-
-      <section className="panel">
-        <h3>Add person</h3>
-        <LaunchTeamCreateForm action={createLaunchTeamMember} />
-      </section>
 
       <section className="table-wrap">
         <table>
