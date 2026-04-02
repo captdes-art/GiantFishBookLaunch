@@ -427,10 +427,15 @@ th {
   margin-bottom: 12px;
 }
 
+.task-done {
+  opacity: 0.5;
+}
+
 .task-edit-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  grid-template-columns: 1fr auto auto auto auto auto;
   gap: 10px;
+  align-items: center;
 }
 
 .task-edit-grid input,

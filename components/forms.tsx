@@ -24,57 +24,23 @@ function OptionList({ values }: { values: readonly string[] }) {
 
 export function TaskCreateForm({ action }: { action: (formData: FormData) => Promise<void> }) {
   return (
-    <form action={action} method="post" className="form-grid compact">
+    <form action={action} method="post" className="form-grid">
+      <input type="hidden" name="owner" value="Des" />
+      <input type="hidden" name="category" value="build" />
+      <input type="hidden" name="phase" value="foundation" />
+      <input type="hidden" name="priority" value="medium" />
+      <input type="hidden" name="status" value="not_started" />
       <div className="field">
         <label htmlFor="task-title">Title</label>
-        <input id="task-title" name="title" required />
-      </div>
-      <div className="field">
-        <label htmlFor="task-owner">Owner</label>
-        <input id="task-owner" name="owner" defaultValue="Des" required />
-      </div>
-      <div className="field">
-        <label htmlFor="task-category">Category</label>
-        <select id="task-category" name="category" defaultValue="build">
-          <OptionList values={TASK_CATEGORIES} />
-        </select>
-      </div>
-      <div className="field">
-        <label htmlFor="task-phase">Phase</label>
-        <select id="task-phase" name="phase" defaultValue="foundation">
-          <OptionList values={TASK_PHASES} />
-        </select>
-      </div>
-      <div className="field">
-        <label htmlFor="task-status">Status</label>
-        <select id="task-status" name="status" defaultValue="not_started">
-          <OptionList values={TASK_STATUSES} />
-        </select>
-      </div>
-      <div className="field">
-        <label htmlFor="task-priority">Priority</label>
-        <select id="task-priority" name="priority" defaultValue="medium">
-          <option value="low">low</option>
-          <option value="medium">medium</option>
-          <option value="high">high</option>
-          <option value="critical">critical</option>
-        </select>
-      </div>
-      <div className="field">
-        <label htmlFor="task-start-date">Start date</label>
-        <input id="task-start-date" type="date" name="start_date" />
+        <input id="task-title" name="title" required placeholder="What needs to get done?" />
       </div>
       <div className="field">
         <label htmlFor="task-due-date">Due date</label>
         <input id="task-due-date" type="date" name="due_date" />
       </div>
       <div className="field" style={{ gridColumn: "1 / -1" }}>
-        <label htmlFor="task-description">Description</label>
-        <textarea id="task-description" name="description" />
-      </div>
-      <div className="field" style={{ gridColumn: "1 / -1" }}>
         <label htmlFor="task-notes">Notes</label>
-        <textarea id="task-notes" name="notes" />
+        <textarea id="task-notes" name="notes" placeholder="Optional details..." style={{ minHeight: 80 }} />
       </div>
       <div className="actions" style={{ gridColumn: "1 / -1" }}>
         <button className="button" type="submit">Add task</button>
@@ -336,28 +302,22 @@ export function TaskEditForm({
   return (
     <form action={action} method="post" className="task-edit-grid">
       <input type="hidden" name="id" value={task.id} />
+      <input type="hidden" name="owner" value={task.owner} />
+      <input type="hidden" name="category" value={task.category} />
+      <input type="hidden" name="phase" value={task.phase} />
+      <input type="hidden" name="priority" value={task.priority} />
+      <input type="hidden" name="start_date" value={task.start_date || ""} />
+      <input type="hidden" name="description" value={task.description || ""} />
       <input name="title" defaultValue={task.title} placeholder="Title" required />
-      <input name="owner" defaultValue={task.owner} placeholder="Owner" required />
-      <select name="category" defaultValue={task.category}>
-        <OptionList values={TASK_CATEGORIES} />
-      </select>
-      <select name="phase" defaultValue={task.phase}>
-        <OptionList values={TASK_PHASES} />
-      </select>
       <select name="status" defaultValue={task.status}>
         <OptionList values={TASK_STATUSES} />
       </select>
-      <select name="priority" defaultValue={task.priority}>
-        <option value="low">low</option>
-        <option value="medium">medium</option>
-        <option value="high">high</option>
-        <option value="critical">critical</option>
-      </select>
-      <input type="date" name="start_date" defaultValue={task.start_date || ""} />
       <input type="date" name="due_date" defaultValue={task.due_date || ""} />
-      <input name="description" defaultValue={task.description || ""} placeholder="Description" />
-      <input name="notes" defaultValue={task.notes || task.dependency_notes || ""} placeholder="Notes" />
+      <input name="notes" defaultValue={task.notes || ""} placeholder="Notes" />
       <button className="ghost-button" type="submit">Save</button>
+      {task.status !== "done" && (
+        <button className="button" type="submit" name="status" value="done">Complete</button>
+      )}
     </form>
   );
 }

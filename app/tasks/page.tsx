@@ -35,39 +35,29 @@ function filterTasks(view: string, tasks: Awaited<ReturnType<typeof getTasks>>) 
 
 export default async function TasksPage({ searchParams }: PageProps) {
   const params = (await searchParams) ?? {};
-  const view = params.view || "today";
+  const view = params.view || "all";
   const tasks = await getTasks();
   const filtered = filterTasks(view, tasks);
 
   return (
     <div className="page">
-      <PageHeader title="Tasks / Timeline" description="Structured implementation schedule from foundation through launch and the Father’s Day follow-through window." actions={<AddTaskButton action={createTask} />} />
+      <PageHeader title="Tasks" description="Track what needs to get done for the launch." actions={<AddTaskButton action={createTask} />} />
       <FilterLinks
         basePath="/tasks"
         current={view}
         options={[
-          { value: "today", label: "Today" },
+          { value: "all", label: "All" },
           { value: "week", label: "This week" },
           { value: "overdue", label: "Overdue" },
-          { value: "phase", label: "By phase" },
-          { value: "category", label: "By category" },
-          { value: "blocked", label: "Blocked" },
           { value: "completed", label: "Completed" }
         ]}
       />
 
       <section className="panel">
-        <h3>Edit tasks</h3>
         <div className="task-edit-list">
+          {filtered.length === 0 && <p className="small" style={{ padding: 12 }}>No tasks in this view.</p>}
           {filtered.map((task) => (
-            <div key={task.id} className="task-edit-card">
-              <div className="task-edit-header">
-                <div>
-                  <strong>{task.title}</strong>
-                  <div className="small">{task.category.replaceAll("_", " ")} • {task.phase.replaceAll("_", " ")}</div>
-                </div>
-                <Badge label={task.priority} tone={task.priority === "critical" ? "danger" : task.priority === "high" ? "warning" : "neutral"} />
-              </div>
+            <div key={task.id} className={`task-edit-card${task.status === "done" ? " task-done" : ""}`}>
               <TaskEditForm action={updateTask} task={task} />
             </div>
           ))}
