@@ -16,7 +16,7 @@ export function hasResendEnv() {
   return Boolean(process.env.RESEND_API_KEY);
 }
 
-const ARC_PDF_PATH = join(process.cwd(), "arc", "giant-fish-arc.pdf");
+const ARC_PDF_PATH = join(process.cwd(), "arc", "Giant-Fish-and-Happiness-Print.pdf");
 
 export async function sendArcEmail(to: string, name: string): Promise<{ ok: boolean; error?: string }> {
   const client = getResendClient();
