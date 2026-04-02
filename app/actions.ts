@@ -120,7 +120,7 @@ export async function createLaunchTeamMember(formData: FormData) {
   await createActivity(`Launch team record created: ${name}`, "launch_team_members", data?.id ?? null, "note");
   revalidatePath("/launch-team");
   revalidatePath("/dashboard");
-  redirect("/launch-team?view=prospects&saved=member-created");
+  redirect("/launch-team?view=all&saved=member-created");
 }
 
 export async function updateLaunchTeamStatus(formData: FormData) {
@@ -129,15 +129,28 @@ export async function updateLaunchTeamStatus(formData: FormData) {
   if (!client) return;
   const id = getValue(formData, "id");
   const status = getValue(formData, "status");
+  const view = getValue(formData, "view") || "all";
+  const now = new Date().toISOString();
+
+  // Fetch existing record to preserve timestamps that were already set
+  const { data: existing } = await client
+    .from("launch_team_members")
+    .select("agreed_at, arc_sent_at, review_posted_at")
+    .eq("id", id)
+    .single();
+
+  const agreed = ["agreed", "arc_sent", "reviewing", "reviewed"].includes(status);
+  const arcSent = ["arc_sent", "reviewing", "reviewed"].includes(status);
+  const reviewed = status === "reviewed";
 
   const { error } = await client.from("launch_team_members").update({
     status,
-    agreed_to_read_review: ["agreed", "arc_sent", "reviewing", "reviewed"].includes(status),
-    agreed_at: ["agreed", "arc_sent", "reviewing", "reviewed"].includes(status) ? new Date().toISOString() : null,
-    arc_sent: ["arc_sent", "reviewing", "reviewed"].includes(status),
-    arc_sent_at: ["arc_sent", "reviewing", "reviewed"].includes(status) ? new Date().toISOString() : null,
-    review_posted: status === "reviewed",
-    review_posted_at: status === "reviewed" ? new Date().toISOString() : null
+    agreed_to_read_review: agreed,
+    agreed_at: agreed ? (existing?.agreed_at || now) : null,
+    arc_sent: arcSent,
+    arc_sent_at: arcSent ? (existing?.arc_sent_at || now) : null,
+    review_posted: reviewed,
+    review_posted_at: reviewed ? (existing?.review_posted_at || now) : null,
   }).eq("id", id);
 
   if (error) {
@@ -148,7 +161,7 @@ export async function updateLaunchTeamStatus(formData: FormData) {
   await createActivity(`Launch team status updated to ${status}`, "launch_team_members", id, "note");
   revalidatePath("/launch-team");
   revalidatePath("/dashboard");
-  redirect("/launch-team?saved=status-updated");
+  redirect(`/launch-team?view=${view}&saved=status-updated`);
 }
 
 export async function createOutreachContact(formData: FormData) {

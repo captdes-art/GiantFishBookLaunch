@@ -8,24 +8,30 @@ type PageProps = {
   searchParams?: Promise<{ view?: string; saved?: string }>;
 };
 
+const ACTIVE_STATUSES = ["agreed", "arc_sent", "reviewing", "reviewed"];
+
 function filterMembers(view: string, members: Awaited<ReturnType<typeof getLaunchTeam>>) {
   switch (view) {
+    case "all":
+      return members;
     case "prospects":
-      return members.filter((member) => member.status === "prospect");
-    case "awaiting":
-      return members.filter((member) => member.status === "invited");
+      return members.filter((m) => m.status === "prospect" || m.status === "invited");
     case "official":
-      return members.filter((member) => member.agreed_to_read_review);
+      return members.filter((m) => ACTIVE_STATUSES.includes(m.status));
     case "arc_not_sent":
-      return members.filter((member) => member.agreed_to_read_review && !member.arc_sent);
+      return members.filter((m) => m.status === "agreed");
+    case "arc_sent":
+      return members.filter((m) => m.status === "arc_sent" || m.status === "reviewing");
     case "review_pending":
-      return members.filter((member) => member.arc_sent && !member.review_posted);
+      return members.filter((m) => m.status === "arc_sent" || m.status === "reviewing");
     case "review_completed":
-      return members.filter((member) => member.review_posted);
+      return members.filter((m) => m.status === "reviewed");
     case "follow_up_due":
-      return members.filter((member) => Boolean(member.follow_up_due));
+      return members.filter((m) => m.follow_up_due !== null);
     case "launch_party":
-      return members.filter((member) => member.review_posted || member.launch_party_invited);
+      return members.filter((m) => m.launch_party_confirmed || (m.review_posted && m.launch_party_invited));
+    case "inactive":
+      return members.filter((m) => m.status === "inactive");
     default:
       return members;
   }
@@ -33,7 +39,7 @@ function filterMembers(view: string, members: Awaited<ReturnType<typeof getLaunc
 
 export default async function LaunchTeamPage({ searchParams }: PageProps) {
   const params = (await searchParams) ?? {};
-  const view = params.view || "prospects";
+  const view = params.view || "all";
   const saved = params.saved;
   const members = await getLaunchTeam();
   const filtered = filterMembers(view, members);
@@ -47,14 +53,15 @@ export default async function LaunchTeamPage({ searchParams }: PageProps) {
         basePath="/launch-team"
         current={view}
         options={[
+          { value: "all", label: "All" },
           { value: "prospects", label: "Prospects" },
-          { value: "awaiting", label: "Invited / awaiting response" },
           { value: "official", label: "Official launch team" },
-          { value: "arc_not_sent", label: "ARC not yet sent" },
+          { value: "arc_not_sent", label: "Needs ARC" },
           { value: "review_pending", label: "Review pending" },
-          { value: "review_completed", label: "Review completed" },
+          { value: "review_completed", label: "Reviewed" },
           { value: "follow_up_due", label: "Follow-up due" },
-          { value: "launch_party", label: "Launch party eligible" }
+          { value: "launch_party", label: "Launch party" },
+          { value: "inactive", label: "Inactive" }
         ]}
       />
 
@@ -87,6 +94,7 @@ export default async function LaunchTeamPage({ searchParams }: PageProps) {
                 <td>
                   <form action={updateLaunchTeamStatus} className="actions">
                     <input type="hidden" name="id" value={member.id} />
+                    <input type="hidden" name="view" value={view} />
                     <select name="status" defaultValue={member.status}>
                       <option value="prospect">prospect</option>
                       <option value="invited">invited</option>
