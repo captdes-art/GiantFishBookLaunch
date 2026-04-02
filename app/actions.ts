@@ -456,7 +456,7 @@ export async function joinLaunchTeam(
     agreed_at: now,
     arc_sent: true,
     arc_sent_at: now,
-    launch_party_invited: true,
+    launch_party_invited: false,
     notes: "Signed up via public launch team form",
   }).select("id").single();
 
