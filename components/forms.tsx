@@ -300,6 +300,7 @@ export function TaskEditForm({
   };
 }) {
   return (
+    <>
     <form action={action} method="post" className="task-edit-grid">
       <input type="hidden" name="id" value={task.id} />
       <input type="hidden" name="owner" value={task.owner} />
@@ -315,10 +316,24 @@ export function TaskEditForm({
       <input type="date" name="due_date" defaultValue={task.due_date || ""} />
       <input name="notes" defaultValue={task.notes || ""} placeholder="Notes" />
       <button className="ghost-button" type="submit">Save</button>
-      {task.status !== "done" && (
-        <button className="button" type="submit" name="status" value="done">Complete</button>
-      )}
     </form>
+    {task.status !== "done" && (
+      <form action={action} method="post" style={{ display: "inline" }}>
+        <input type="hidden" name="id" value={task.id} />
+        <input type="hidden" name="title" value={task.title} />
+        <input type="hidden" name="owner" value={task.owner} />
+        <input type="hidden" name="category" value={task.category} />
+        <input type="hidden" name="phase" value={task.phase} />
+        <input type="hidden" name="priority" value={task.priority} />
+        <input type="hidden" name="start_date" value={task.start_date || ""} />
+        <input type="hidden" name="description" value={task.description || ""} />
+        <input type="hidden" name="due_date" value={task.due_date || ""} />
+        <input type="hidden" name="notes" value={task.notes || ""} />
+        <input type="hidden" name="status" value="done" />
+        <button className="button" type="submit">Complete</button>
+      </form>
+    )}
+    </>
   );
 }
 
