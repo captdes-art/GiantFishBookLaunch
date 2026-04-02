@@ -18,18 +18,39 @@ export default function JoinLaunchTeamPage() {
           <div className="lt-hero-text">
             <p className="lt-eyebrow">Advance Reader Copy</p>
             <h1 className="lt-title">
-              Join the Launch Team
+              Giant Fish &amp; Happiness
             </h1>
             <p className="lt-subtitle">
               Finding Peace, True Love, and Surrender Amidst the Gales of Life
             </p>
             <p className="lt-hook">
-              I&apos;m looking for <strong>50 readers</strong> to get my book before anyone else,
-              read it, and post an honest review on Amazon when we launch on <strong>May 26th</strong>.
+              I&apos;m so excited you&apos;re here, and thank you for being part of this
+              milestone in my life — the publishing of my first ever book.
             </p>
             <p className="lt-hook">
-              As a thank you, every reviewer gets a <strong>free fishing trip on the Celtic Quest</strong> this
-              summer. Come out on the boat, celebrate the launch, and let&apos;s catch some fish together. My treat.
+              I truly hope this book brings you wisdom, laughter, and a sense of peace
+              after reading all the wild adventures from my life. It would mean the world
+              to me if you&apos;d consider <strong>joining my launch team</strong>.
+            </p>
+            <p className="lt-hook">
+              If you want to help me out, just sign up below. I&apos;ll email you an advance
+              reader copy PDF. Over the next several weeks, enjoy reading it — hopefully
+              it&apos;s quick, easy, and enjoyable for you. When we launch at the end of May,
+              whenever you&apos;re ready, just head to Amazon and leave a review. Hopefully
+              a positive one — LOL.
+            </p>
+            <p className="lt-hook">
+              And that&apos;s it. With that, you&apos;ll be invited for a <strong>free fishing trip
+              this summer</strong> — a special launch party trip that my wife and I will be
+              running on the Celtic Quest to celebrate. Hopefully you&apos;ll be able to join
+              us for that too.
+            </p>
+            <p className="lt-hook" style={{ marginTop: 8, fontStyle: "italic", color: "#d4c5a0" }}>
+              From the bottom of my heart, thank you for the love and support. I can&apos;t
+              wait to share it all with you.
+            </p>
+            <p className="lt-hook" style={{ color: "#d4c5a0" }}>
+              — Captain Des
             </p>
           </div>
           <div className="lt-cover-wrap">
