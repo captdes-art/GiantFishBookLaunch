@@ -791,6 +791,8 @@ th {
 
   .lt-cover-wrap {
     order: 1;
+    display: flex;
+    justify-content: center;
   }
 
   .lt-hook {
