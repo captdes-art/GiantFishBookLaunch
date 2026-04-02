@@ -1,7 +1,7 @@
 import { createTask, updateTask } from "@/app/actions";
-import { TaskEditForm } from "@/components/forms";
 import { AddTaskButton } from "@/components/add-member-modal";
-import { Badge, DateCell, FilterLinks, PageHeader } from "@/components/ui";
+import { TaskList } from "@/components/task-list";
+import { FilterLinks, PageHeader } from "@/components/ui";
 import { getTasks } from "@/lib/data";
 
 type PageProps = {
@@ -9,10 +9,7 @@ type PageProps = {
 };
 
 function filterTasks(view: string, tasks: Awaited<ReturnType<typeof getTasks>>) {
-  const now = new Date();
   switch (view) {
-    case "today":
-      return tasks.filter((task) => task.due_date === now.toISOString().slice(0, 10));
     case "active":
       return tasks.filter((task) => task.status !== "done");
     case "completed":
@@ -44,17 +41,7 @@ export default async function TasksPage({ searchParams }: PageProps) {
           { value: "completed", label: "Completed" }
         ]}
       />
-
-      <section className="panel">
-        <div className="task-edit-list">
-          {filtered.length === 0 && <p className="small" style={{ padding: 12 }}>No tasks in this view.</p>}
-          {filtered.map((task) => (
-            <div key={task.id} className={`task-edit-card${task.status === "done" ? " task-done" : ""}`}>
-              <TaskEditForm action={updateTask} task={task} />
-            </div>
-          ))}
-        </div>
-      </section>
+      <TaskList tasks={filtered} action={updateTask} />
     </div>
   );
 }
