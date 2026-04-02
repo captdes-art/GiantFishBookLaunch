@@ -18,7 +18,11 @@ function filterTasks(view: string, tasks: Awaited<ReturnType<typeof getTasks>>) 
     case "completed":
       return tasks.filter((task) => task.status === "done");
     default:
-      return tasks;
+      return [...tasks].sort((a, b) => {
+        if (a.status === "done" && b.status !== "done") return 1;
+        if (a.status !== "done" && b.status === "done") return -1;
+        return 0;
+      });
   }
 }
 
