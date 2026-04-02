@@ -436,12 +436,27 @@ export async function joinLaunchTeam(
     .single();
 
   if (existing) {
-    // Re-send the ARC email in case they lost it
+    // Upgrade their record to full launch team status and re-send the ARC email
+    const now = new Date().toISOString();
+    await client.from("launch_team_members").update({
+      full_name: fullName,
+      phone: phone || null,
+      source: "email_list_signup",
+      status: "arc_sent",
+      agreed_to_read_review: true,
+      agreed_at: now,
+      arc_sent: true,
+      arc_sent_at: now,
+    }).eq("id", existing.id);
+
     if (hasResendEnv()) {
       await sendArcEmail(email, fullName);
-      await client.from("launch_team_members").update({ arc_sent_at: new Date().toISOString() }).eq("id", existing.id);
     }
-    return { ok: true, message: "You're already on the team! We just re-sent the book to your email." };
+
+    await createActivity(`Launch team signup (existing record upgraded): ${fullName}`, "launch_team_members", existing.id, "note");
+    revalidatePath("/launch-team");
+    revalidatePath("/dashboard");
+    return { ok: true, message: "You're in! Check your email for your advance copy of the book." };
   }
 
   const now = new Date().toISOString();
