@@ -24,7 +24,7 @@ export async function sendArcEmail(to: string, name: string): Promise<{ ok: bool
     return { ok: false, error: "Resend not configured." };
   }
 
-  const fromEmail = process.env.RESEND_FROM_EMAIL || "des@cqfleet.com";
+  const fromEmail = process.env.RESEND_FROM_EMAIL || "desmond@cqfleet.com";
   const baseUrl = process.env.APP_BASE_URL || "http://localhost:3000";
 
   const attachments: { filename: string; content: Buffer }[] = [];
