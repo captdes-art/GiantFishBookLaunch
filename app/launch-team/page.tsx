@@ -1,5 +1,6 @@
 import { createLaunchTeamMember, updateLaunchTeamStatus } from "@/app/actions";
 import { AddMemberButton } from "@/components/add-member-modal";
+import { LaunchTeamActions } from "@/components/launch-team-actions";
 import { Badge, DateCell, FilterLinks, PageHeader } from "@/components/ui";
 import { getLaunchTeam } from "@/lib/data";
 
@@ -56,6 +57,8 @@ export default async function LaunchTeamPage({ searchParams }: PageProps) {
           { value: "launch_party", label: "Launch party eligible" }
         ]}
       />
+
+      <LaunchTeamActions members={filtered} />
 
       <section className="table-wrap">
         <table>
