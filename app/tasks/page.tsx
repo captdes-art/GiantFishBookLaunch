@@ -1,5 +1,6 @@
 import { createTask, updateTask } from "@/app/actions";
-import { TaskCreateForm, TaskEditForm } from "@/components/forms";
+import { TaskEditForm } from "@/components/forms";
+import { AddTaskButton } from "@/components/add-member-modal";
 import { Badge, DateCell, FilterLinks, PageHeader } from "@/components/ui";
 import { getTasks } from "@/lib/data";
 
@@ -40,7 +41,7 @@ export default async function TasksPage({ searchParams }: PageProps) {
 
   return (
     <div className="page">
-      <PageHeader title="Tasks / Timeline" description="Structured implementation schedule from foundation through launch and the Father’s Day follow-through window." />
+      <PageHeader title="Tasks / Timeline" description="Structured implementation schedule from foundation through launch and the Father’s Day follow-through window." actions={<AddTaskButton action={createTask} />} />
       <FilterLinks
         basePath="/tasks"
         current={view}
@@ -54,11 +55,6 @@ export default async function TasksPage({ searchParams }: PageProps) {
           { value: "completed", label: "Completed" }
         ]}
       />
-
-      <section className="panel">
-        <h3>Add task</h3>
-        <TaskCreateForm action={createTask} />
-      </section>
 
       <section className="panel">
         <h3>Edit tasks</h3>
