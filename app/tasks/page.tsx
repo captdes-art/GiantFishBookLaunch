@@ -13,21 +13,10 @@ function filterTasks(view: string, tasks: Awaited<ReturnType<typeof getTasks>>) 
   switch (view) {
     case "today":
       return tasks.filter((task) => task.due_date === now.toISOString().slice(0, 10));
-    case "week": {
-      const week = new Date();
-      week.setDate(now.getDate() + 7);
-      return tasks.filter((task) => task.due_date && new Date(task.due_date) <= week && task.status !== "done");
-    }
-    case "overdue":
-      return tasks.filter((task) => task.due_date && new Date(task.due_date) < now && task.status !== "done");
-    case "blocked":
-      return tasks.filter((task) => task.status === "blocked");
+    case "active":
+      return tasks.filter((task) => task.status !== "done");
     case "completed":
       return tasks.filter((task) => task.status === "done");
-    case "phase":
-      return [...tasks].sort((a, b) => a.phase.localeCompare(b.phase));
-    case "category":
-      return [...tasks].sort((a, b) => a.category.localeCompare(b.category));
     default:
       return tasks;
   }
@@ -35,7 +24,7 @@ function filterTasks(view: string, tasks: Awaited<ReturnType<typeof getTasks>>) 
 
 export default async function TasksPage({ searchParams }: PageProps) {
   const params = (await searchParams) ?? {};
-  const view = params.view || "all";
+  const view = params.view || "active";
   const tasks = await getTasks();
   const filtered = filterTasks(view, tasks);
 
@@ -46,9 +35,8 @@ export default async function TasksPage({ searchParams }: PageProps) {
         basePath="/tasks"
         current={view}
         options={[
+          { value: "active", label: "Active" },
           { value: "all", label: "All" },
-          { value: "week", label: "This week" },
-          { value: "overdue", label: "Overdue" },
           { value: "completed", label: "Completed" }
         ]}
       />
