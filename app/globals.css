@@ -415,8 +415,13 @@ th {
 .task-edit-card {
   border: 1px solid var(--line);
   border-radius: 16px;
-  padding: 14px;
+  padding: 20px 24px;
   background: var(--panel-muted);
+}
+
+.task-edit-list {
+  display: grid;
+  gap: 16px;
 }
 
 .task-edit-header {
