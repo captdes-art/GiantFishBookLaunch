@@ -506,11 +506,11 @@ th {
 }
 
 .lt-hook {
-  font-size: 1.08rem;
-  line-height: 1.7;
+  font-size: 1.25rem;
+  line-height: 1.75;
   color: #c8d6e5;
   margin: 0 0 16px;
-  max-width: 520px;
+  max-width: 580px;
 }
 
 .lt-hook strong {
