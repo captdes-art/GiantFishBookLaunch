@@ -41,7 +41,7 @@ function isOverdue(task: Task) {
   return new Date(task.due_date) < new Date(new Date().toISOString().slice(0, 10));
 }
 
-export function TaskList({ tasks, action }: { tasks: Task[]; action: (formData: FormData) => Promise<void> }) {
+export function TaskList({ tasks, action, deleteAction }: { tasks: Task[]; action: (formData: FormData) => Promise<void>; deleteAction: (formData: FormData) => Promise<void> }) {
   const [openId, setOpenId] = useState<string | null>(null);
   const backdropRef = useRef<HTMLDivElement>(null);
 
@@ -136,6 +136,17 @@ export function TaskList({ tasks, action }: { tasks: Task[]; action: (formData: 
                   </button>
                 )}
               </div>
+            </form>
+            <form action={deleteAction} method="post" style={{ marginTop: 12, borderTop: "1px solid var(--line)", paddingTop: 12 }}>
+              <input type="hidden" name="id" value={openTask.id} />
+              <button
+                className="ghost-button"
+                type="submit"
+                style={{ color: "var(--danger)", fontSize: "0.85rem" }}
+                onClick={() => setOpenId(null)}
+              >
+                Delete task
+              </button>
             </form>
           </div>
         </div>

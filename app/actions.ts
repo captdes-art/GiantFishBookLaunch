@@ -92,6 +92,33 @@ export async function updateTask(formData: FormData) {
   redirect("/tasks?saved=task-updated");
 }
 
+export async function deleteTask(formData: FormData) {
+  if (!hasSupabaseEnv()) return;
+  const client = getSupabaseAdminClient();
+  if (!client) return;
+  const id = getValue(formData, "id");
+
+  await client.from("launch_tasks").delete().eq("id", id);
+  await createActivity("Task deleted", "launch_tasks", id, "task_update");
+  revalidatePath("/tasks");
+  revalidatePath("/dashboard");
+  redirect("/tasks");
+}
+
+export async function deleteLaunchTeamMember(formData: FormData) {
+  if (!hasSupabaseEnv()) return;
+  const client = getSupabaseAdminClient();
+  if (!client) return;
+  const id = getValue(formData, "id");
+  const view = getValue(formData, "view") || "all";
+
+  await client.from("launch_team_members").delete().eq("id", id);
+  await createActivity("Launch team member deleted", "launch_team_members", id, "note");
+  revalidatePath("/launch-team");
+  revalidatePath("/dashboard");
+  redirect(`/launch-team?view=${view}&saved=member-deleted`);
+}
+
 export async function createLaunchTeamMember(formData: FormData) {
   if (!hasSupabaseEnv()) return;
   const client = getSupabaseAdminClient();

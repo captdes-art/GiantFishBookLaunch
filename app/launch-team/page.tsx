@@ -1,4 +1,4 @@
-import { createLaunchTeamMember, updateLaunchTeamStatus } from "@/app/actions";
+import { createLaunchTeamMember, updateLaunchTeamStatus, deleteLaunchTeamMember } from "@/app/actions";
 import { AddMemberButton } from "@/components/add-member-modal";
 import { LaunchTeamActions } from "@/components/launch-team-actions";
 import { Badge, DateCell, FilterLinks, PageHeader } from "@/components/ui";
@@ -49,6 +49,7 @@ export default async function LaunchTeamPage({ searchParams }: PageProps) {
       <PageHeader title="Launch Team CRM" description="Track prospects, official launch team members, ARC progress, reviews, and launch party eligibility." actions={<AddMemberButton action={createLaunchTeamMember} />} />
       {saved === "member-created" && <p className="success-banner">New launch team member added.</p>}
       {saved === "status-updated" && <p className="success-banner">Status updated.</p>}
+      {saved === "member-deleted" && <p className="success-banner">Member deleted.</p>}
       <FilterLinks
         basePath="/launch-team"
         current={view}
@@ -80,6 +81,7 @@ export default async function LaunchTeamPage({ searchParams }: PageProps) {
               <th>Review</th>
               <th>Follow-up</th>
               <th>Launch party</th>
+              <th></th>
             </tr>
           </thead>
           <tbody>
@@ -112,6 +114,13 @@ export default async function LaunchTeamPage({ searchParams }: PageProps) {
                 <td><Badge label={member.review_posted} tone={member.review_posted ? "success" : "warning"} /></td>
                 <td><DateCell value={member.follow_up_due} /></td>
                 <td><Badge label={member.review_posted || member.launch_party_invited} tone={member.review_posted || member.launch_party_invited ? "success" : "neutral"} /></td>
+                <td>
+                  <form action={deleteLaunchTeamMember} className="actions">
+                    <input type="hidden" name="id" value={member.id} />
+                    <input type="hidden" name="view" value={view} />
+                    <button className="ghost-button" type="submit" style={{ color: "var(--danger)", fontSize: "0.82rem" }}>Delete</button>
+                  </form>
+                </td>
               </tr>
             ))}
           </tbody>

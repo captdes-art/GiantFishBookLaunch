@@ -1,4 +1,4 @@
-import { createTask, updateTask } from "@/app/actions";
+import { createTask, updateTask, deleteTask } from "@/app/actions";
 import { AddTaskButton } from "@/components/add-member-modal";
 import { TaskList } from "@/components/task-list";
 import { FilterLinks, PageHeader } from "@/components/ui";
@@ -41,7 +41,7 @@ export default async function TasksPage({ searchParams }: PageProps) {
           { value: "completed", label: "Completed" }
         ]}
       />
-      <TaskList tasks={filtered} action={updateTask} />
+      <TaskList tasks={filtered} action={updateTask} deleteAction={deleteTask} />
     </div>
   );
 }
