@@ -454,6 +454,17 @@ export async function joinLaunchTeam(
     return { ok: false, message: "Database unavailable. Please try again." };
   }
 
+  // Check if launch team is full
+  const { count } = await client
+    .from("launch_team_members")
+    .select("id", { count: "exact", head: true })
+    .in("status", ["agreed", "arc_sent", "reviewing", "reviewed"]);
+
+  const LAUNCH_TEAM_CAP = 60;
+  if ((count ?? 0) >= LAUNCH_TEAM_CAP) {
+    return { ok: false, message: "The launch team is full! Thank you for your interest — stay tuned for the book launch on May 26th." };
+  }
+
   // Check for existing signup by email
   const { data: existing } = await client
     .from("launch_team_members")
