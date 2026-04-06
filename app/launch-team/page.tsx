@@ -1,6 +1,7 @@
 import { createLaunchTeamMember, updateLaunchTeamStatus, deleteLaunchTeamMember } from "@/app/actions";
 import { AddMemberButton } from "@/components/add-member-modal";
 import { LaunchTeamActions } from "@/components/launch-team-actions";
+import { SendPdfButton } from "@/components/send-pdf-modal";
 import { Badge, DateCell, FilterLinks, PageHeader } from "@/components/ui";
 import { getLaunchTeam } from "@/lib/data";
 
@@ -115,11 +116,16 @@ export default async function LaunchTeamPage({ searchParams }: PageProps) {
                 <td><DateCell value={member.follow_up_due} /></td>
                 <td><Badge label={member.review_posted || member.launch_party_invited} tone={member.review_posted || member.launch_party_invited ? "success" : "neutral"} /></td>
                 <td>
-                  <form action={deleteLaunchTeamMember} className="actions">
-                    <input type="hidden" name="id" value={member.id} />
-                    <input type="hidden" name="view" value={view} />
-                    <button className="ghost-button" type="submit" style={{ color: "var(--danger)", fontSize: "0.82rem" }}>Delete</button>
-                  </form>
+                  <div className="actions">
+                    {member.email && (
+                      <SendPdfButton memberId={member.id} memberName={member.full_name} memberEmail={member.email} />
+                    )}
+                    <form action={deleteLaunchTeamMember}>
+                      <input type="hidden" name="id" value={member.id} />
+                      <input type="hidden" name="view" value={view} />
+                      <button className="ghost-button" type="submit" style={{ color: "var(--danger)", fontSize: "0.82rem" }}>Delete</button>
+                    </form>
+                  </div>
                 </td>
               </tr>
             ))}

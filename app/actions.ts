@@ -105,6 +105,80 @@ export async function deleteTask(formData: FormData) {
   redirect("/tasks");
 }
 
+export async function uploadArcPdf(
+  _prevState: { ok: boolean; message: string },
+  formData: FormData
+): Promise<{ ok: boolean; message: string }> {
+  if (!hasSupabaseEnv()) {
+    return { ok: false, message: "Supabase not configured." };
+  }
+  const client = getSupabaseAdminClient();
+  if (!client) {
+    return { ok: false, message: "Database unavailable." };
+  }
+
+  const file = formData.get("pdf");
+  if (!(file instanceof File) || !file.size) {
+    return { ok: false, message: "Please select a PDF file." };
+  }
+
+  const bytes = Buffer.from(await file.arrayBuffer());
+  const { error } = await client.storage.from("arc-pdf").upload("current-arc.pdf", bytes, {
+    contentType: "application/pdf",
+    upsert: true,
+  });
+
+  if (error) {
+    return { ok: false, message: error.message };
+  }
+
+  await createActivity("ARC PDF updated", "app_settings", null, "system");
+  return { ok: true, message: `PDF uploaded successfully (${(file.size / 1024 / 1024).toFixed(1)} MB).` };
+}
+
+export async function sendArcPdfToMember(
+  _prevState: { ok: boolean; message: string },
+  formData: FormData
+): Promise<{ ok: boolean; message: string }> {
+  const memberId = getValue(formData, "member_id");
+  const email = getValue(formData, "email");
+  const name = getValue(formData, "name");
+  const customMessage = getValue(formData, "custom_message").trim();
+
+  if (!email || !name) {
+    return { ok: false, message: "Member email and name are required." };
+  }
+
+  if (!hasResendEnv()) {
+    return { ok: false, message: "Resend not configured." };
+  }
+
+  const result = await sendArcEmail(email, name, customMessage || undefined);
+  if (!result.ok) {
+    return { ok: false, message: result.error || "Failed to send email." };
+  }
+
+  if (hasSupabaseEnv() && memberId) {
+    const client = getSupabaseAdminClient();
+    if (client) {
+      const now = new Date().toISOString();
+      await client.from("launch_team_members").update({
+        arc_sent: true,
+        arc_sent_at: now,
+        status: "arc_sent",
+        agreed_to_read_review: true,
+        agreed_at: now,
+      }).eq("id", memberId);
+
+      await createActivity(`ARC PDF sent to ${name}`, "launch_team_members", memberId, "note");
+      revalidatePath("/launch-team");
+      revalidatePath("/dashboard");
+    }
+  }
+
+  return { ok: true, message: `PDF sent to ${name} at ${email}.` };
+}
+
 export async function deleteLaunchTeamMember(formData: FormData) {
   if (!hasSupabaseEnv()) return;
   const client = getSupabaseAdminClient();
@@ -142,6 +216,21 @@ export async function createLaunchTeamMember(formData: FormData) {
   if (error) {
     console.error("createLaunchTeamMember failed", error);
     return;
+  }
+
+  const shouldSendArc = getValue(formData, "send_arc_email") === "true";
+  const email = getValue(formData, "email");
+
+  if (shouldSendArc && email && data?.id && hasResendEnv()) {
+    const now = new Date().toISOString();
+    await sendArcEmail(email, name);
+    await client.from("launch_team_members").update({
+      arc_sent: true,
+      arc_sent_at: now,
+      status: "arc_sent",
+      agreed_to_read_review: true,
+      agreed_at: now,
+    }).eq("id", data.id);
   }
 
   await createActivity(`Launch team record created: ${name}`, "launch_team_members", data?.id ?? null, "note");

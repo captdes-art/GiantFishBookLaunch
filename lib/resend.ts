@@ -1,6 +1,7 @@
 import { Resend } from "resend";
 import { readFileSync, existsSync } from "fs";
 import { join } from "path";
+import { getSupabaseAdminClient, hasSupabaseEnv } from "@/lib/supabase";
 
 let resendClient: Resend | null = null;
 
@@ -16,9 +17,34 @@ export function hasResendEnv() {
   return Boolean(process.env.RESEND_API_KEY);
 }
 
-const ARC_PDF_PATH = join(process.cwd(), "arc", "Giant-Fish-and-Happiness-Print.pdf");
+const LOCAL_PDF_PATH = join(process.cwd(), "arc", "Giant-Fish-and-Happiness-Print.pdf");
 
-export async function sendArcEmail(to: string, name: string): Promise<{ ok: boolean; error?: string }> {
+async function getArcPdf(): Promise<Buffer | null> {
+  // Try Supabase Storage first
+  if (hasSupabaseEnv()) {
+    const client = getSupabaseAdminClient();
+    if (client) {
+      const { data, error } = await client.storage.from("arc-pdf").download("current-arc.pdf");
+      if (!error && data) {
+        const arrayBuffer = await data.arrayBuffer();
+        return Buffer.from(arrayBuffer);
+      }
+    }
+  }
+
+  // Fall back to local filesystem
+  if (existsSync(LOCAL_PDF_PATH)) {
+    return readFileSync(LOCAL_PDF_PATH);
+  }
+
+  return null;
+}
+
+export async function sendArcEmail(
+  to: string,
+  name: string,
+  customMessage?: string
+): Promise<{ ok: boolean; error?: string }> {
   const client = getResendClient();
   if (!client) {
     return { ok: false, error: "Resend not configured." };
@@ -27,11 +53,12 @@ export async function sendArcEmail(to: string, name: string): Promise<{ ok: bool
   const fromEmail = process.env.RESEND_FROM_EMAIL || "desmond@cqfleet.com";
   const baseUrl = process.env.APP_BASE_URL || "http://localhost:3000";
 
+  const pdfBuffer = await getArcPdf();
   const attachments: { filename: string; content: Buffer }[] = [];
-  if (existsSync(ARC_PDF_PATH)) {
+  if (pdfBuffer) {
     attachments.push({
       filename: "Giant-Fish-and-Happiness-ARC.pdf",
-      content: readFileSync(ARC_PDF_PATH),
+      content: pdfBuffer,
     });
   }
 
@@ -40,7 +67,7 @@ export async function sendArcEmail(to: string, name: string): Promise<{ ok: bool
       from: `Des O'Sullivan <${fromEmail}>`,
       to,
       subject: "Your Advance Copy of Giant Fish & Happiness",
-      html: buildArcEmailHtml(name, baseUrl),
+      html: buildArcEmailHtml(name, baseUrl, customMessage),
       attachments,
     });
 
@@ -56,12 +83,18 @@ export async function sendArcEmail(to: string, name: string): Promise<{ ok: bool
   }
 }
 
-function buildArcEmailHtml(name: string, baseUrl: string): string {
+function buildArcEmailHtml(name: string, baseUrl: string, customMessage?: string): string {
+  const customBlock = customMessage
+    ? `<p style="background: #f8f5ef; padding: 16px 20px; border-radius: 8px; border-left: 3px solid #daa520; margin: 20px 0;">${customMessage.replace(/\n/g, "<br/>")}</p>`
+    : "";
+
   return `
     <div style="font-family: Georgia, 'Times New Roman', serif; max-width: 600px; margin: 0 auto; padding: 32px 24px; color: #1a1a1a; line-height: 1.7;">
       <h1 style="font-size: 24px; margin-bottom: 24px; color: #1a3a5c;">Giant Fish &amp; Happiness</h1>
 
       <p>Hi ${name},</p>
+
+      ${customBlock}
 
       <p>Thank you so much for joining the launch team. Your support means everything to me.</p>
 

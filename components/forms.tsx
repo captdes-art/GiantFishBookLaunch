@@ -70,6 +70,12 @@ export function LaunchTeamCreateForm({ action }: { action: (formData: FormData) 
         </select>
       </div>
       <div className="field" style={{ gridColumn: "1 / -1" }}><label htmlFor="lt-notes">Notes</label><textarea id="lt-notes" name="notes" /></div>
+      <div className="field" style={{ gridColumn: "1 / -1" }}>
+        <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}>
+          <input type="checkbox" name="send_arc_email" value="true" />
+          Send ARC PDF email immediately
+        </label>
+      </div>
       <div className="actions" style={{ gridColumn: "1 / -1" }}><button className="button" type="submit">Add person</button></div>
     </form>
   );
