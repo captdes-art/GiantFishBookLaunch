@@ -83,6 +83,75 @@ export async function sendArcEmail(
   }
 }
 
+export async function sendCouponEmail(
+  to: string,
+  firstName: string,
+  couponCode: string
+): Promise<{ ok: boolean; error?: string }> {
+  const client = getResendClient();
+  if (!client) {
+    return { ok: false, error: "Resend not configured." };
+  }
+
+  const fromEmail = process.env.RESEND_FROM_EMAIL || "desmond@cqfleet.com";
+
+  try {
+    const { error } = await client.emails.send({
+      from: `Des O'Sullivan <${fromEmail}>`,
+      replyTo: "captdes@gmail.com",
+      to,
+      subject: "Your FREE $20 Celtic Quest Fishing Coupon — Thanks for Reading!",
+      html: buildCouponEmailHtml(firstName, couponCode),
+    });
+
+    if (error) {
+      console.error("Coupon email send failed:", error);
+      return { ok: false, error: error.message };
+    }
+
+    return { ok: true };
+  } catch (err) {
+    console.error("Coupon email send error:", err);
+    return { ok: false, error: "Failed to send coupon email." };
+  }
+}
+
+function buildCouponEmailHtml(firstName: string, couponCode: string): string {
+  return `
+    <div style="font-family: Georgia, 'Times New Roman', serif; max-width: 600px; margin: 0 auto; padding: 32px 24px; color: #1a1a1a; line-height: 1.7;">
+      <h1 style="font-size: 24px; margin-bottom: 24px; color: #1a3a5c;">Giant Fish &amp; Happiness</h1>
+
+      <p>Hi ${firstName},</p>
+
+      <p>Thank you so much for reading <strong>Giant Fish &amp; Happiness</strong>. It means the world to me.</p>
+
+      <p>As promised &mdash; here&rsquo;s your FREE $20 Celtic Quest fishing coupon:</p>
+
+      <div style="background: #1a3a5c; color: #ffffff; text-align: center; padding: 24px 20px; border-radius: 12px; margin: 28px 0;">
+        <div style="font-family: 'Courier New', Courier, monospace; font-size: 28px; font-weight: bold; letter-spacing: 3px; margin-bottom: 8px;">${couponCode}</div>
+        <div style="font-size: 16px; color: #daa520; font-weight: bold;">$20 OFF Any Trip</div>
+      </div>
+
+      <h2 style="font-size: 18px; margin-top: 32px; color: #1a3a5c;">How to Use It</h2>
+      <ol style="padding-left: 20px;">
+        <li>Visit <a href="https://www.celticquestfishing.com" style="color: #2563eb;">www.celticquestfishing.com</a></li>
+        <li>Book any charter trip</li>
+        <li>Enter your coupon code at checkout</li>
+      </ol>
+
+      <p>Good on any trip, any date &mdash; no expiration.</p>
+
+      <p>Come fishing with us. The water is beautiful out here.</p>
+
+      <p style="margin-top: 32px;">
+        God bless,<br/>
+        <strong>Captain Des O&rsquo;Sullivan</strong><br/>
+        <span style="color: #666; font-size: 14px;">Celtic Quest Fishing Fleet<br/>Port Jefferson, Long Island<br/>(631) 928-3926<br/><a href="https://www.celticquestfishing.com" style="color: #2563eb;">www.celticquestfishing.com</a></span>
+      </p>
+    </div>
+  `;
+}
+
 function buildArcEmailHtml(name: string, baseUrl: string, customMessage?: string): string {
   const customBlock = customMessage
     ? `<p style="background: #f8f5ef; padding: 16px 20px; border-radius: 8px; border-left: 3px solid #daa520; margin: 20px 0;">${customMessage.replace(/\n/g, "<br/>")}</p>`

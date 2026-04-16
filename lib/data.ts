@@ -2,6 +2,7 @@ import { DEFAULT_LAUNCH_DATE } from "@/lib/constants";
 import {
   mockActivity,
   mockContent,
+  mockCouponClaims,
   mockLaunchTeam,
   mockOutreach,
   mockPurchases,
@@ -14,6 +15,7 @@ import type {
   ActivityLog,
   AppSettings,
   ContentItem,
+  CouponClaim,
   LaunchTask,
   LaunchTeamMember,
   OutreachContact,
@@ -102,6 +104,11 @@ export async function getReviews(): Promise<Review[]> {
   }
 
   return (data ?? mockReviews) as Review[];
+}
+
+export async function getCouponClaims(): Promise<CouponClaim[]> {
+  if (!hasSupabaseEnv()) return mockCouponClaims;
+  return readTable<CouponClaim>("coupon_claims", mockCouponClaims, "*", "created_at", false);
 }
 
 export async function getActivity(): Promise<ActivityLog[]> {

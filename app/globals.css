@@ -910,6 +910,531 @@ th {
   }
 }
 
+/* ===== Coupon Claim Landing Page ===== */
+
+.cl-landing {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #0b1a2e 0%, #122745 30%, #1a3a5c 60%, #1f4a6e 100%);
+  color: #f0ebe3;
+  overflow-x: hidden;
+}
+
+.cl-hero {
+  position: relative;
+  padding: 60px 24px 48px;
+  overflow: hidden;
+}
+
+.cl-hero-glow {
+  position: absolute;
+  top: -120px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 800px;
+  height: 600px;
+  background: radial-gradient(ellipse at center, rgba(218, 165, 32, 0.25) 0%, rgba(218, 135, 32, 0.1) 40%, transparent 70%);
+  pointer-events: none;
+}
+
+.cl-hero-inner {
+  position: relative;
+  max-width: 1000px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 48px;
+  align-items: center;
+}
+
+.cl-eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  font-size: 0.82rem;
+  color: #daa520;
+  font-weight: 600;
+  margin: 0 0 12px;
+}
+
+.cl-title {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 3rem;
+  line-height: 1.1;
+  margin: 0 0 16px;
+  color: #ffffff;
+  text-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
+}
+
+.cl-subtitle {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.3rem;
+  color: #f5d77a;
+  margin: 0 0 28px;
+  line-height: 1.4;
+  font-weight: 600;
+}
+
+.cl-hook {
+  font-size: 1.15rem;
+  line-height: 1.75;
+  color: #c8d6e5;
+  margin: 0 0 16px;
+  max-width: 580px;
+}
+
+.cl-hook strong {
+  color: #f5d77a;
+}
+
+.cl-cover-wrap {
+  flex-shrink: 0;
+}
+
+.cl-cover-shadow {
+  border-radius: 8px;
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.5),
+    0 0 80px rgba(218, 165, 32, 0.15),
+    0 0 0 1px rgba(255, 255, 255, 0.08);
+  transform: perspective(800px) rotateY(-4deg);
+  transition: transform 0.4s ease;
+  overflow: hidden;
+}
+
+.cl-cover-shadow:hover {
+  transform: perspective(800px) rotateY(0deg) scale(1.02);
+}
+
+.cl-cover {
+  display: block;
+  width: 320px;
+  height: auto;
+  border-radius: 8px;
+}
+
+/* Claim Form Section */
+
+.cl-form-section {
+  padding: 0 24px 60px;
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+.cl-form-card {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 20px;
+  padding: 36px 32px;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.cl-form-card h2 {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.6rem;
+  margin: 0 0 8px;
+  color: #ffffff;
+}
+
+.cl-form-desc {
+  color: #9ab3cc;
+  margin: 0 0 24px;
+  font-size: 0.95rem;
+}
+
+.cl-form {
+  display: grid;
+  gap: 18px;
+}
+
+.cl-field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.cl-field {
+  display: grid;
+  gap: 6px;
+}
+
+.cl-field label {
+  font-size: 0.88rem;
+  color: #9ab3cc;
+  font-weight: 500;
+}
+
+.cl-field input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+  font-size: 1rem;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.cl-field input[type="file"] {
+  padding: 10px 12px;
+  font-size: 0.9rem;
+}
+
+.cl-field input::placeholder {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.cl-field input:focus {
+  outline: none;
+  border-color: #daa520;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.cl-helper {
+  font-size: 0.8rem;
+  color: #6b8aaa;
+  line-height: 1.4;
+}
+
+.cl-submit {
+  width: 100%;
+  padding: 14px 24px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #daa520 0%, #b8860b 100%);
+  color: #0b1a2e;
+  font-size: 1.05rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+  box-shadow: 0 4px 20px rgba(218, 165, 32, 0.3);
+  letter-spacing: 0.02em;
+}
+
+.cl-submit:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 28px rgba(218, 165, 32, 0.45);
+}
+
+.cl-submit:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.cl-error {
+  color: #f87171;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.cl-disclaimer {
+  font-size: 0.82rem;
+  color: #6b8aaa;
+  margin: 0;
+  text-align: center;
+  line-height: 1.5;
+}
+
+/* Claim Success */
+
+.cl-success-card {
+  text-align: center;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(218, 165, 32, 0.3);
+  border-radius: 20px;
+  padding: 48px 32px;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.cl-success-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #daa520, #b8860b);
+  color: #0b1a2e;
+  font-size: 1.6rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+}
+
+.cl-success-card h2 {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.8rem;
+  margin: 0 0 12px;
+  color: #f5d77a;
+}
+
+.cl-success-card p {
+  font-size: 1.1rem;
+  color: #c8d6e5;
+  margin: 0 0 16px;
+  line-height: 1.6;
+}
+
+.cl-success-note {
+  font-size: 0.88rem !important;
+  color: #6b8aaa !important;
+}
+
+/* Claim Steps */
+
+.cl-steps-section {
+  padding: 60px 24px 72px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.cl-steps-title {
+  font-family: Georgia, "Times New Roman", serif;
+  text-align: center;
+  font-size: 1.8rem;
+  color: #ffffff;
+  margin: 0 0 40px;
+}
+
+.cl-steps {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.cl-step {
+  text-align: center;
+  padding: 24px 16px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  transition: background 0.2s;
+}
+
+.cl-step:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.cl-step-num {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #daa520, #b8860b);
+  color: #0b1a2e;
+  font-weight: 800;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 14px;
+}
+
+.cl-step h3 {
+  font-size: 1rem;
+  margin: 0 0 8px;
+  color: #f5d77a;
+}
+
+.cl-step p {
+  font-size: 0.9rem;
+  color: #9ab3cc;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Claim Footer */
+
+.cl-footer {
+  padding: 24px;
+  text-align: center;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.cl-footer p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #4a6a8a;
+}
+
+/* Claim page responsive */
+
+@media (max-width: 768px) {
+  .cl-hero-inner {
+    grid-template-columns: 1fr;
+    text-align: center;
+    gap: 36px;
+  }
+
+  .cl-hero-text {
+    order: 2;
+  }
+
+  .cl-cover-wrap {
+    order: 1;
+    display: flex;
+    justify-content: center;
+  }
+
+  .cl-hook {
+    max-width: 100%;
+  }
+
+  .cl-title {
+    font-size: 2.2rem;
+  }
+
+  .cl-cover {
+    width: 240px;
+  }
+
+  .cl-cover-shadow {
+    transform: none;
+    margin: 0 auto;
+  }
+
+  .cl-cover-shadow:hover {
+    transform: scale(1.02);
+  }
+
+  .cl-steps {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .cl-form-card {
+    padding: 28px 20px;
+  }
+
+  .cl-field-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .cl-hero {
+    padding: 40px 16px 32px;
+  }
+
+  .cl-title {
+    font-size: 1.8rem;
+  }
+
+  .cl-steps {
+    grid-template-columns: 1fr;
+  }
+
+  .cl-form-section {
+    padding: 0 16px 48px;
+  }
+}
+
+/* ===== Admin Coupon Styles ===== */
+
+.send-btn {
+  padding: 6px 14px;
+  border: none;
+  border-radius: 8px;
+  background: var(--success);
+  color: white;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.send-btn:hover:not(:disabled) {
+  opacity: 0.85;
+}
+
+.send-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.cq-retry-btn {
+  font-size: 0.78rem;
+  color: var(--accent);
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 3px 8px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.cq-retry-btn:hover:not(:disabled) {
+  background: var(--accent-soft);
+}
+
+.cq-retry-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.link-btn {
+  background: none;
+  border: none;
+  color: var(--accent);
+  font-size: 0.85rem;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  padding: 0;
+}
+
+.danger-text {
+  color: var(--danger) !important;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 24px;
+}
+
+.modal {
+  background: var(--panel);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  max-width: 500px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-wide {
+  max-width: 800px;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--line);
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 1.4rem;
+  cursor: pointer;
+  color: var(--text-soft);
+  padding: 0 4px;
+}
+
+.modal-body {
+  padding: 20px;
+}
+
 /* ===== End Landing Page ===== */
 
 @media (max-width: 980px) {
