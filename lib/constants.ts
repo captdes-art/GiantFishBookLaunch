@@ -7,6 +7,7 @@ export const NAV_ITEMS = [
   { href: "/outreach", label: "Outreach" },
   { href: "/content", label: "Content" },
   { href: "/purchases", label: "Purchases" },
+  { href: "/admin/coupons", label: "Coupons" },
   { href: "/reviews", label: "Reviews" },
   { href: "/activity", label: "Activity" },
   { href: "/settings", label: "Settings" }
@@ -22,3 +23,4 @@ export const CONTENT_STATUSES = ["idea", "drafting", "awaiting_approval", "appro
 export const PURCHASE_VERIFICATION_STATUSES = ["pending", "verified", "rejected"] as const;
 export const PURCHASE_COUPON_STATUSES = ["not_sent", "sent", "not_applicable"] as const;
 export const REVIEW_STATUSES = ["not_started", "promised", "reminder_due", "posted", "verified"] as const;
+export const CLAIM_STATUSES = ["pending", "sent", "rejected"] as const;

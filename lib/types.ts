@@ -17,7 +17,8 @@ export type VerificationStatus = "pending" | "verified" | "rejected";
 export type CouponStatus = "not_sent" | "sent" | "not_applicable";
 export type ReviewType = "amazon" | "goodreads" | "testimonial" | "social" | "other";
 export type ReviewStatus = "not_started" | "promised" | "reminder_due" | "posted" | "verified";
-export type ActivityEventType = "task_update" | "outreach_update" | "submission_update" | "review_update" | "note" | "system";
+export type CouponClaimStatus = "pending" | "sent" | "rejected";
+export type ActivityEventType = "task_update" | "outreach_update" | "submission_update" | "review_update" | "coupon_update" | "note" | "system";
 
 export type LaunchTask = {
   id: string;
@@ -147,6 +148,23 @@ export type ActivityLog = {
   details: string | null;
   created_by: string | null;
   created_at: string;
+};
+
+export type CouponClaim = {
+  id: string;
+  created_at: string;
+  updated_at: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  amazon_order_number: string;
+  screenshot_url: string | null;
+  coupon_code: string;
+  coupon_value_cents: number;
+  status: CouponClaimStatus;
+  cq_coupon_id: string | null;
+  admin_notes: string | null;
+  sent_at: string | null;
 };
 
 export type AppSettings = {

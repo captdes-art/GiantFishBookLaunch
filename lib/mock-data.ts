@@ -3,6 +3,7 @@ import type {
   ActivityLog,
   AppSettings,
   ContentItem,
+  CouponClaim,
   LaunchTask,
   LaunchTeamMember,
   OutreachContact,
@@ -280,6 +281,25 @@ export const mockReviews: Review[] = [
       full_name: "Casey Rivers",
       email: "casey@example.com"
     }
+  }
+];
+
+export const mockCouponClaims: CouponClaim[] = [
+  {
+    id: "claim-1",
+    created_at: "2026-05-27T10:00:00.000Z",
+    updated_at: "2026-05-27T10:00:00.000Z",
+    first_name: "John",
+    last_name: "Smith",
+    email: "john@example.com",
+    amazon_order_number: "113-1234567-8901234",
+    screenshot_url: null,
+    coupon_code: "FISH-AB3XK7YZ",
+    coupon_value_cents: 2000,
+    status: "pending",
+    cq_coupon_id: null,
+    admin_notes: null,
+    sent_at: null,
   }
 ];
 

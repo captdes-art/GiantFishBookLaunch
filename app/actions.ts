@@ -3,8 +3,10 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { getSupabaseAdminClient, hasSupabaseEnv } from "@/lib/supabase";
-import { hasResendEnv, sendArcEmail } from "@/lib/resend";
+import { hasResendEnv, sendArcEmail, sendCouponEmail } from "@/lib/resend";
 import { slugify } from "@/lib/utils";
+import { generateUniqueCouponCode } from "@/lib/coupon";
+import { syncCouponToCq } from "@/lib/cq-sync";
 
 async function createActivity(summary: string, entityType: string, entityId: string | null, eventType: string) {
   if (!hasSupabaseEnv()) return;
@@ -677,4 +679,233 @@ export async function submitReviewLink(
   revalidatePath("/dashboard");
 
   return { ok: true, message: "Thank you! Your review has been recorded and your spot on the Celtic Quest launch party trip is confirmed. We'll be in touch with details!" };
+}
+
+// ===== Coupon Claims =====
+
+export async function submitCouponClaim(
+  _prevState: { ok: boolean; message: string },
+  formData: FormData
+): Promise<{ ok: boolean; message: string }> {
+  const firstName = getValue(formData, "first_name").trim();
+  const lastName = getValue(formData, "last_name").trim();
+  const email = getValue(formData, "email").trim().toLowerCase();
+  const orderNumber = getValue(formData, "amazon_order_number").trim();
+
+  if (!firstName || !lastName || !email || !orderNumber) {
+    return { ok: false, message: "All fields are required." };
+  }
+
+  if (orderNumber.length < 10) {
+    return { ok: false, message: "Please enter a valid Amazon order number." };
+  }
+
+  if (!hasSupabaseEnv()) {
+    return { ok: true, message: "Saved in mock mode. Configure Supabase to persist." };
+  }
+
+  const client = getSupabaseAdminClient();
+  if (!client) {
+    return { ok: false, message: "Database unavailable. Please try again." };
+  }
+
+  // Check for duplicate by email
+  const { data: existing } = await client
+    .from("coupon_claims")
+    .select("id, status")
+    .ilike("email", email)
+    .in("status", ["pending", "sent"])
+    .limit(1)
+    .maybeSingle();
+
+  if (existing) {
+    return { ok: false, message: "It looks like you've already claimed a coupon with this email. Check your inbox or contact us at captdes@gmail.com" };
+  }
+
+  // Handle optional screenshot upload
+  let screenshotUrl: string | null = null;
+  const file = formData.get("screenshot");
+  if (file instanceof File && file.size > 0) {
+    if (file.size > 5 * 1024 * 1024) {
+      return { ok: false, message: "Screenshot must be under 5MB." };
+    }
+    const ext = file.name.split(".").pop() || "jpg";
+    const path = `claims/${slugify(`${firstName}-${lastName}`)}-${Date.now()}.${ext}`;
+    const bytes = Buffer.from(await file.arrayBuffer());
+    const upload = await client.storage.from("claim-screenshots").upload(path, bytes, {
+      contentType: file.type || "image/jpeg",
+      upsert: false,
+    });
+    if (upload.error) {
+      console.error("Screenshot upload failed:", upload.error);
+    } else {
+      screenshotUrl = path;
+    }
+  }
+
+  // Generate unique coupon code
+  let couponCode: string;
+  try {
+    couponCode = await generateUniqueCouponCode(client);
+  } catch {
+    return { ok: false, message: "Something went wrong generating your coupon. Please try again." };
+  }
+
+  // Insert claim
+  const { data: claim, error } = await client.from("coupon_claims").insert({
+    first_name: firstName,
+    last_name: lastName,
+    email,
+    amazon_order_number: orderNumber,
+    screenshot_url: screenshotUrl,
+    coupon_code: couponCode,
+    status: "pending",
+  }).select("id").single();
+
+  if (error) {
+    console.error("submitCouponClaim insert failed:", error);
+    return { ok: false, message: "Something went wrong. Please try again." };
+  }
+
+  // Attempt CQ sync (non-blocking — don't fail the user if this fails)
+  const cqResult = await syncCouponToCq({
+    coupon_code: couponCode,
+    email,
+    first_name: firstName,
+    last_name: lastName,
+    coupon_value_cents: 2000,
+  });
+
+  if (cqResult.ok && cqResult.cqCouponId && claim?.id) {
+    await client.from("coupon_claims").update({ cq_coupon_id: cqResult.cqCouponId }).eq("id", claim.id);
+  }
+
+  await createActivity(`Coupon claim submitted by ${firstName} ${lastName}`, "coupon_claims", claim?.id ?? null, "coupon_update");
+  revalidatePath("/admin/coupons");
+  revalidatePath("/dashboard");
+
+  return { ok: true, message: `You're all set, ${firstName}! We're processing your coupon now. You'll receive an email within 24 hours with your $20 Celtic Quest coupon code. See you on the water!` };
+}
+
+export async function sendCoupon(
+  _prevState: { ok: boolean; message: string },
+  formData: FormData
+): Promise<{ ok: boolean; message: string }> {
+  const claimId = getValue(formData, "claim_id");
+
+  if (!claimId) {
+    return { ok: false, message: "Missing claim ID." };
+  }
+
+  if (!hasSupabaseEnv()) {
+    return { ok: false, message: "Supabase not configured." };
+  }
+
+  const client = getSupabaseAdminClient();
+  if (!client) {
+    return { ok: false, message: "Database unavailable." };
+  }
+
+  // Fetch the claim
+  const { data: claim, error: fetchError } = await client
+    .from("coupon_claims")
+    .select("*")
+    .eq("id", claimId)
+    .single();
+
+  if (fetchError || !claim) {
+    return { ok: false, message: "Claim not found." };
+  }
+
+  if (claim.status === "sent") {
+    return { ok: false, message: "Coupon already sent." };
+  }
+
+  if (!hasResendEnv()) {
+    return { ok: false, message: "Email service not configured." };
+  }
+
+  // Send the email
+  const emailResult = await sendCouponEmail(claim.email, claim.first_name, claim.coupon_code);
+  if (!emailResult.ok) {
+    return { ok: false, message: emailResult.error || "Failed to send email." };
+  }
+
+  // Update status
+  const now = new Date().toISOString();
+  await client.from("coupon_claims").update({
+    status: "sent",
+    sent_at: now,
+  }).eq("id", claimId);
+
+  await createActivity(`Coupon sent to ${claim.first_name} ${claim.last_name} (${claim.coupon_code})`, "coupon_claims", claimId, "coupon_update");
+  revalidatePath("/admin/coupons");
+  revalidatePath("/dashboard");
+
+  return { ok: true, message: `Coupon sent to ${claim.first_name} at ${claim.email}.` };
+}
+
+export async function rejectClaim(formData: FormData) {
+  if (!hasSupabaseEnv()) return;
+  const client = getSupabaseAdminClient();
+  if (!client) return;
+
+  const id = getValue(formData, "id");
+  const adminNotes = getValue(formData, "admin_notes");
+
+  await client.from("coupon_claims").update({
+    status: "rejected",
+    admin_notes: adminNotes || null,
+  }).eq("id", id);
+
+  await createActivity("Coupon claim rejected", "coupon_claims", id, "coupon_update");
+  revalidatePath("/admin/coupons");
+  revalidatePath("/dashboard");
+}
+
+export async function retryCqSync(
+  _prevState: { ok: boolean; message: string },
+  formData: FormData
+): Promise<{ ok: boolean; message: string }> {
+  const claimId = getValue(formData, "claim_id");
+
+  if (!hasSupabaseEnv()) {
+    return { ok: false, message: "Supabase not configured." };
+  }
+
+  const client = getSupabaseAdminClient();
+  if (!client) {
+    return { ok: false, message: "Database unavailable." };
+  }
+
+  const { data: claim, error } = await client
+    .from("coupon_claims")
+    .select("*")
+    .eq("id", claimId)
+    .single();
+
+  if (error || !claim) {
+    return { ok: false, message: "Claim not found." };
+  }
+
+  const result = await syncCouponToCq({
+    coupon_code: claim.coupon_code,
+    email: claim.email,
+    first_name: claim.first_name,
+    last_name: claim.last_name,
+    coupon_value_cents: claim.coupon_value_cents,
+  });
+
+  if (!result.ok) {
+    return { ok: false, message: result.error || "CQ sync failed." };
+  }
+
+  if (result.cqCouponId) {
+    await client.from("coupon_claims").update({ cq_coupon_id: result.cqCouponId }).eq("id", claimId);
+  }
+
+  await createActivity(`CQ sync retried for ${claim.first_name} ${claim.last_name}`, "coupon_claims", claimId, "coupon_update");
+  revalidatePath("/admin/coupons");
+
+  return { ok: true, message: "CQ sync successful." };
 }

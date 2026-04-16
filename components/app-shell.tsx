@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
 
-  const publicRoutes = ["/proof-of-purchase", "/join-launch-team", "/submit-review"];
+  const publicRoutes = ["/proof-of-purchase", "/join-launch-team", "/submit-review", "/claim"];
   if (publicRoutes.some(route => pathname.startsWith(route))) {
     return <main className="main">{children}</main>;
   }
@@ -35,6 +35,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <Link href="/proof-of-purchase">Public proof-of-purchase form</Link>
           <Link href="/join-launch-team">Public ARC signup form</Link>
           <Link href="/submit-review">Public review submission</Link>
+          <Link href="/claim">Public coupon claim form</Link>
         </nav>
       </aside>
 
