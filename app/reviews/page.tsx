@@ -2,6 +2,7 @@ import { createReview, updateReviewStatus } from "@/app/actions";
 import { ReviewCreateForm } from "@/components/forms";
 import { Badge, DateCell, FilterLinks, PageHeader } from "@/components/ui";
 import { getLaunchTeam, getReviews } from "@/lib/data";
+import { requireAdmin } from "@/lib/auth";
 
 type PageProps = {
   searchParams?: Promise<{ view?: string }>;
@@ -23,6 +24,7 @@ function filterReviews(view: string, reviews: Awaited<ReturnType<typeof getRevie
 }
 
 export default async function ReviewsPage({ searchParams }: PageProps) {
+  await requireAdmin("/reviews");
   const params = (await searchParams) ?? {};
   const view = params.view || "promised";
   const [reviews, launchTeam] = await Promise.all([getReviews(), getLaunchTeam()]);

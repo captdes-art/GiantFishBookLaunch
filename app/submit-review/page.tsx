@@ -1,12 +1,17 @@
-"use client";
+import { Suspense } from "react";
+import { SubmitReviewForm } from "./SubmitReviewForm";
 
-import { useActionState } from "react";
-import { submitReviewLink } from "@/app/actions";
+export const metadata = {
+  title: "Submit your review — Giant Fish & Happiness",
+};
 
-const initialState = { ok: false, message: "" };
-
-export default function SubmitReviewPage() {
-  const [state, action, pending] = useActionState(submitReviewLink, initialState);
+export default async function SubmitReviewPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ token?: string }>;
+}) {
+  const params = await searchParams;
+  const token = (params.token || "").trim();
 
   return (
     <div className="page" style={{ maxWidth: 840, margin: "0 auto", paddingTop: 40 }}>
@@ -19,46 +24,18 @@ export default function SubmitReviewPage() {
         </p>
       </section>
 
-      {state.ok ? (
-        <section className="panel" style={{ textAlign: "center", padding: "48px 24px" }}>
-          <h3 style={{ marginBottom: 16 }}>You&apos;re all set!</h3>
-          <p style={{ fontSize: 18 }}>{state.message}</p>
+      {!token ? (
+        <section className="panel" style={{ padding: "32px 24px" }}>
+          <h3>Use your personal link</h3>
+          <p>
+            This form only works from the personalized link we emailed you. If you can&apos;t find it,
+            reply to the ARC email Des sent you and he&apos;ll send a fresh link.
+          </p>
         </section>
       ) : (
-        <section className="panel">
-          <h3>Paste your Amazon review link</h3>
-          <form action={action} className="form-grid">
-            <div className="field">
-              <label htmlFor="review-email">Email</label>
-              <input
-                id="review-email"
-                name="email"
-                type="email"
-                required
-                placeholder="The email you signed up with"
-              />
-            </div>
-            <div className="field" style={{ gridColumn: "1 / -1" }}>
-              <label htmlFor="review-link">Amazon Review Link</label>
-              <input
-                id="review-link"
-                name="review_link"
-                type="url"
-                required
-                placeholder="https://www.amazon.com/..."
-              />
-              <p className="small" style={{ margin: "4px 0 0" }}>
-                Go to your review on Amazon, copy the URL from your browser, and paste it here.
-              </p>
-            </div>
-            <div className="actions">
-              <button className="button" type="submit" disabled={pending}>
-                {pending ? "Submitting..." : "Submit Review"}
-              </button>
-              {state.message && !state.ok ? <span className="small" style={{ color: "#b91c1c" }}>{state.message}</span> : null}
-            </div>
-          </form>
-        </section>
+        <Suspense>
+          <SubmitReviewForm token={token} />
+        </Suspense>
       )}
     </div>
   );

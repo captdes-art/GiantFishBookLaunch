@@ -3,6 +3,7 @@ import { AddTaskButton } from "@/components/add-member-modal";
 import { TaskList } from "@/components/task-list";
 import { FilterLinks, PageHeader } from "@/components/ui";
 import { getTasks } from "@/lib/data";
+import { requireAdmin } from "@/lib/auth";
 
 type PageProps = {
   searchParams?: Promise<{ view?: string }>;
@@ -24,6 +25,7 @@ function filterTasks(view: string, tasks: Awaited<ReturnType<typeof getTasks>>) 
 }
 
 export default async function TasksPage({ searchParams }: PageProps) {
+  await requireAdmin("/tasks");
   const params = (await searchParams) ?? {};
   const view = params.view || "active";
   const tasks = await getTasks();

@@ -13,3 +13,5 @@ tsconfig.tsbuildinfo
 * 2
 *\ 2.*
 *\ 2
+.env*.local
+.env.production

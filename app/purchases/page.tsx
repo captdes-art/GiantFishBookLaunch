@@ -2,6 +2,7 @@ import { updatePurchaseSubmission } from "@/app/actions";
 import { PurchaseUpdateForm } from "@/components/forms";
 import { Badge, DateCell, FilterLinks, PageHeader } from "@/components/ui";
 import { getPurchases } from "@/lib/data";
+import { requireAdmin } from "@/lib/auth";
 
 type PageProps = {
   searchParams?: Promise<{ view?: string }>;
@@ -30,6 +31,7 @@ function filterPurchases(view: string, purchases: Awaited<ReturnType<typeof getP
 }
 
 export default async function PurchasesPage({ searchParams }: PageProps) {
+  await requireAdmin("/purchases");
   const params = (await searchParams) ?? {};
   const view = params.view || "pending";
   const purchases = await getPurchases();

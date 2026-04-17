@@ -2,8 +2,10 @@ import { createActivityNote } from "@/app/actions";
 import { ActivityNoteForm } from "@/components/forms";
 import { Badge, DateCell, PageHeader } from "@/components/ui";
 import { getActivity } from "@/lib/data";
+import { requireAdmin } from "@/lib/auth";
 
 export default async function ActivityPage() {
+  await requireAdmin("/activity");
   const activity = await getActivity();
 
   return (

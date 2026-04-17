@@ -4,6 +4,7 @@ import { LaunchTeamActions } from "@/components/launch-team-actions";
 import { SendPdfButton } from "@/components/send-pdf-modal";
 import { Badge, DateCell, FilterLinks, PageHeader } from "@/components/ui";
 import { getLaunchTeam } from "@/lib/data";
+import { requireAdmin } from "@/lib/auth";
 
 type PageProps = {
   searchParams?: Promise<{ view?: string; saved?: string }>;
@@ -39,6 +40,7 @@ function filterMembers(view: string, members: Awaited<ReturnType<typeof getLaunc
 }
 
 export default async function LaunchTeamPage({ searchParams }: PageProps) {
+  await requireAdmin("/launch-team");
   const params = (await searchParams) ?? {};
   const view = params.view || "all";
   const saved = params.saved;

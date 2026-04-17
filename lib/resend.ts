@@ -83,6 +83,93 @@ export async function sendArcEmail(
   }
 }
 
+export async function sendVerificationEmail(
+  to: string,
+  name: string,
+  verifyUrl: string
+): Promise<{ ok: boolean; error?: string }> {
+  const client = getResendClient();
+  if (!client) {
+    return { ok: false, error: "Resend not configured." };
+  }
+
+  const fromEmail = process.env.RESEND_FROM_EMAIL || "desmond@cqfleet.com";
+
+  const html = `
+    <div style="font-family: Georgia, 'Times New Roman', serif; max-width: 600px; margin: 0 auto; padding: 32px 24px; color: #1a1a1a; line-height: 1.7;">
+      <h1 style="font-size: 22px; margin-bottom: 20px; color: #1a3a5c;">Confirm your email</h1>
+      <p>Hi ${name},</p>
+      <p>Thanks for asking to join the Giant Fish &amp; Happiness launch team. To confirm this is really your email and send you the advance copy, please click the link below:</p>
+      <p style="margin: 28px 0;">
+        <a href="${verifyUrl}" style="background:#1a3a5c;color:#fff;padding:12px 22px;border-radius:8px;text-decoration:none;font-weight:bold;">Confirm my email</a>
+      </p>
+      <p style="color:#555;font-size:14px;">If you didn't sign up, just ignore this email — nothing will happen. The link expires in 24 hours.</p>
+      <p style="margin-top:32px;">Thanks,<br/><strong>Des O'Sullivan</strong></p>
+    </div>
+  `;
+
+  try {
+    const { error } = await client.emails.send({
+      from: `Des O'Sullivan <${fromEmail}>`,
+      to,
+      subject: "Confirm your email for Giant Fish & Happiness",
+      html,
+    });
+
+    if (error) {
+      console.error("Verification email send failed:", error);
+      return { ok: false, error: error.message };
+    }
+    return { ok: true };
+  } catch (err) {
+    console.error("Verification email send error:", err);
+    return { ok: false, error: "Failed to send verification email." };
+  }
+}
+
+export async function sendReviewLinkEmail(
+  to: string,
+  name: string,
+  submitUrl: string
+): Promise<{ ok: boolean; error?: string }> {
+  const client = getResendClient();
+  if (!client) {
+    return { ok: false, error: "Resend not configured." };
+  }
+
+  const fromEmail = process.env.RESEND_FROM_EMAIL || "desmond@cqfleet.com";
+
+  const html = `
+    <div style="font-family: Georgia, 'Times New Roman', serif; max-width: 600px; margin: 0 auto; padding: 32px 24px; color: #1a1a1a; line-height: 1.7;">
+      <h1 style="font-size: 22px; margin-bottom: 20px; color: #1a3a5c;">Submit your review link</h1>
+      <p>Hi ${name},</p>
+      <p>Thanks again for reading the advance copy. When you're ready to post your honest Amazon review and claim your spot on the Celtic Quest launch party trip, use the personal link below:</p>
+      <p style="margin: 28px 0;">
+        <a href="${submitUrl}" style="background:#1a3a5c;color:#fff;padding:12px 22px;border-radius:8px;text-decoration:none;font-weight:bold;">Submit my review link</a>
+      </p>
+      <p style="color:#555;font-size:14px;">This link is unique to you — please don't share it.</p>
+      <p style="margin-top:32px;">Tight lines,<br/><strong>Des O'Sullivan</strong></p>
+    </div>
+  `;
+
+  try {
+    const { error } = await client.emails.send({
+      from: `Des O'Sullivan <${fromEmail}>`,
+      to,
+      subject: "Your personal review submission link",
+      html,
+    });
+    if (error) {
+      console.error("Review link email send failed:", error);
+      return { ok: false, error: error.message };
+    }
+    return { ok: true };
+  } catch (err) {
+    console.error("Review link email send error:", err);
+    return { ok: false, error: "Failed to send review link email." };
+  }
+}
+
 export async function sendCouponEmail(
   to: string,
   firstName: string,

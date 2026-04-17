@@ -1,8 +1,10 @@
 import { getDashboardData } from "@/lib/data";
 import { getCountdown } from "@/lib/utils";
 import { MetricCard, PageHeader, Badge, DateCell } from "@/components/ui";
+import { requireAdmin } from "@/lib/auth";
 
 export default async function DashboardPage() {
+  await requireAdmin("/dashboard");
   const { settings, tasks, launchTeam, outreach, purchases, reviews, activity } = await getDashboardData();
   const countdown = getCountdown(settings.launch_target_date);
   const topPriorities = tasks

@@ -1,5 +1,5 @@
 import { cookies } from "next/headers";
-import { createServerClient } from "@supabase/ssr";
+import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { createClient } from "@supabase/supabase-js";
 
 function getConfig() {
@@ -29,12 +29,29 @@ export async function getSupabaseServerClient() {
       get(name: string) {
         return cookieStore.get(name)?.value;
       },
-      set() {},
-      remove() {}
-    }
+      set(name: string, value: string, options: CookieOptions) {
+        try {
+          cookieStore.set({ name, value, ...options });
+        } catch {
+          // Set is a no-op in read-only contexts (server components).
+          // Server actions and route handlers re-invoke middleware for refresh.
+        }
+      },
+      remove(name: string, options: CookieOptions) {
+        try {
+          cookieStore.set({ name, value: "", ...options, maxAge: 0 });
+        } catch {
+          // See note above.
+        }
+      },
+    },
   });
 }
 
+// Service-role client. Never expose to client code. Use ONLY after a caller
+// has been authenticated and authorized via requireAdmin(), OR inside a
+// public intake server action that has already enforced rate limit +
+// verification per SECURITY.md.
 export function getSupabaseAdminClient() {
   const { url, serviceRoleKey } = getConfig();
 

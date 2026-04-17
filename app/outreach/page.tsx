@@ -2,6 +2,7 @@ import { createOutreachContact, updateOutreachStatus } from "@/app/actions";
 import { OutreachCreateForm } from "@/components/forms";
 import { Badge, DateCell, FilterLinks, PageHeader } from "@/components/ui";
 import { getOutreach } from "@/lib/data";
+import { requireAdmin } from "@/lib/auth";
 
 type PageProps = {
   searchParams?: Promise<{ view?: string }>;
@@ -29,6 +30,7 @@ function filterContacts(view: string, contacts: Awaited<ReturnType<typeof getOut
 }
 
 export default async function OutreachPage({ searchParams }: PageProps) {
+  await requireAdmin("/outreach");
   const params = (await searchParams) ?? {};
   const view = params.view || "awaiting_approval";
   const contacts = await getOutreach();

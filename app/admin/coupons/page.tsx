@@ -4,6 +4,7 @@ import { getSupabaseAdminClient } from "@/lib/supabase";
 import { ScreenshotModal } from "@/components/admin/screenshot-modal";
 import { SendCouponButton, RejectClaimButton, RetryCqSyncButton } from "@/components/admin/coupon-actions";
 import type { CouponClaim } from "@/lib/types";
+import { requireAdmin } from "@/lib/auth";
 
 type PageProps = {
   searchParams?: Promise<{ view?: string }>;
@@ -30,6 +31,7 @@ async function getSignedUrl(path: string): Promise<string | null> {
 }
 
 export default async function AdminCouponsPage({ searchParams }: PageProps) {
+  await requireAdmin("/admin/coupons");
   const params = (await searchParams) ?? {};
   const view = params.view || "pending";
   const claims = await getCouponClaims();

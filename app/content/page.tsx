@@ -2,6 +2,7 @@ import { createContentItem, updateContentStatus } from "@/app/actions";
 import { ContentCreateForm } from "@/components/forms";
 import { Badge, DateCell, FilterLinks, PageHeader } from "@/components/ui";
 import { getContent } from "@/lib/data";
+import { requireAdmin } from "@/lib/auth";
 
 type PageProps = {
   searchParams?: Promise<{ view?: string }>;
@@ -29,6 +30,7 @@ function filterContent(view: string, items: Awaited<ReturnType<typeof getContent
 }
 
 export default async function ContentPage({ searchParams }: PageProps) {
+  await requireAdmin("/content");
   const params = (await searchParams) ?? {};
   const view = params.view || "awaiting_approval";
   const items = await getContent();
