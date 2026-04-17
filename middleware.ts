@@ -20,7 +20,10 @@ const PUBLIC_FILE = /\.(png|jpg|jpeg|gif|svg|webp|ico|css|js|map|txt|xml|woff|wo
 function isPublicPath(pathname: string) {
   if (pathname === "/") return false;
   if (pathname.startsWith("/_next")) return true;
-  if (pathname.startsWith("/api/")) return false; // APIs self-gate via requireAdmin()
+  // API routes MUST self-gate with requireAdmin() (security rule #12).
+  // We pass them through middleware so handlers can return 401 JSON
+  // instead of a 307 redirect to /login — better UX for API clients.
+  if (pathname.startsWith("/api/")) return true;
   if (PUBLIC_FILE.test(pathname)) return true;
   return PUBLIC_PATH_PREFIXES.some(
     (prefix) => pathname === prefix || pathname.startsWith(prefix + "/")
