@@ -41,3 +41,12 @@
 - Added `SECURITY.md` — actors, assets, invariants, threat model.
 - Added `Sign out` button to the admin sidebar.
 - Local `npm run build` passes (Next 15.5.14, clean typecheck).
+- Production smoke-test sweep against `giant-fish-book-launch.vercel.app` after deploy `qufu7jjw8`:
+  - Every admin path (`/`, `/dashboard`, `/tasks`, `/launch-team`, `/outreach`, `/content`, `/purchases`, `/reviews`, `/activity`, `/settings`, `/admin/coupons`) logged-out → `307` → `/login?next=...` ✅
+  - `POST /api/upload-arc` logged-out → `401 {"ok":false,"message":"Unauthorized."}` ✅ (security rule #12)
+  - `/login` → `200` ✅
+  - All 4 public paths (`/claim`, `/submit-review`, `/join-launch-team`, `/proof-of-purchase`) → `200` ✅
+  - `/join-launch-team/verify?token=bogus` → `200` (renders "invalid or expired" message) ✅
+  - `/submit-review?token=bogus` → `200` (renders, action rejects on submit) ✅
+  - Old Basic Auth header (`-u captdes@gmail.com:CQfun48@`) no longer grants dashboard access → `307` → `/login` ✅
+- Dashboard credentials (Supabase Auth, not Basic Auth): email `captdes@gmail.com` / password `CQfun48@`. Sign in via `/login`.
