@@ -5,3 +5,11 @@ node_modules
 npm-debug.log*
 supabase/.temp
 .vercel
+.DS_Store
+.claude/
+tsconfig.tsbuildinfo
+# iCloud sync conflict artifacts
+* 2.*
+* 2
+*\ 2.*
+*\ 2
