@@ -25,4 +25,11 @@ enabled = false
 
 [storage]
 enabled = true
-file_size_limit = "10MiB"
+file_size_limit = "50MiB"
+
+[auth]
+site_url = "https://giant-fish-book-launch.vercel.app"
+additional_redirect_urls = [
+  "https://giant-fish-book-launch.vercel.app/reset-password",
+  "http://localhost:3000/reset-password"
+]

@@ -8,6 +8,8 @@ import { createServerClient, type CookieOptions } from "@supabase/ssr";
 // - /submit-review (takes its own token param)
 const PUBLIC_PATH_PREFIXES = [
   "/login",
+  "/forgot-password",
+  "/reset-password",
   "/claim",
   "/submit-review",
   "/join-launch-team",

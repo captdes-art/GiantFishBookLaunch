@@ -10,7 +10,7 @@ import { signOut } from "@/app/login/actions";
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
 
-  const publicRoutes = ["/proof-of-purchase", "/join-launch-team", "/submit-review", "/claim", "/login"];
+  const publicRoutes = ["/proof-of-purchase", "/join-launch-team", "/submit-review", "/claim", "/login", "/forgot-password", "/reset-password"];
   if (publicRoutes.some(route => pathname.startsWith(route))) {
     return <main className="main">{children}</main>;
   }
