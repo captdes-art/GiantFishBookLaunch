@@ -23,6 +23,65 @@ function filterClaims(view: string, claims: CouponClaim[]) {
   }
 }
 
+function sortSentClaims(claims: CouponClaim[]) {
+  return claims
+    .filter((claim) => claim.status === "sent")
+    .sort((a, b) => {
+      const aTime = a.sent_at ? new Date(a.sent_at).getTime() : 0;
+      const bTime = b.sent_at ? new Date(b.sent_at).getTime() : 0;
+      return bTime - aTime;
+    });
+}
+
+function SentCouponHistory({ claims }: { claims: CouponClaim[] }) {
+  return (
+    <section className="stack">
+      <PageHeader
+        title="Sent Coupon History"
+        description="Every claim that has already been emailed a coupon, newest first."
+      />
+      <section className="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Sent To</th>
+              <th>Email</th>
+              <th>Coupon</th>
+              <th>Sent</th>
+              <th>Order #</th>
+            </tr>
+          </thead>
+          <tbody>
+            {claims.length === 0 && (
+              <tr>
+                <td colSpan={5} style={{ textAlign: "center", padding: 32, color: "var(--text-soft)" }}>
+                  No coupons sent yet.
+                </td>
+              </tr>
+            )}
+            {claims.map((claim) => (
+              <tr key={claim.id}>
+                <td>
+                  <strong>{claim.first_name} {claim.last_name}</strong>
+                  <div className="small">Claimed <DateCell value={claim.created_at} time /></div>
+                </td>
+                <td className="small">{claim.email}</td>
+                <td>
+                  <code style={{ fontSize: "0.85rem", background: "var(--panel-muted)", padding: "2px 6px", borderRadius: 4 }}>
+                    {claim.coupon_code}
+                  </code>
+                </td>
+                <td className="small"><DateCell value={claim.sent_at} time /></td>
+                <td className="small" style={{ fontFamily: "monospace" }}>{claim.amazon_order_number}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </section>
+    </section>
+  );
+}
+
 async function getSignedUrl(path: string): Promise<string | null> {
   const client = getSupabaseAdminClient();
   if (!client) return null;
@@ -36,9 +95,10 @@ export default async function AdminCouponsPage({ searchParams }: PageProps) {
   const view = params.view || "pending";
   const claims = await getCouponClaims();
   const filtered = filterClaims(view, claims);
+  const sentClaims = sortSentClaims(claims);
 
   const pendingCount = claims.filter((c) => c.status === "pending").length;
-  const sentCount = claims.filter((c) => c.status === "sent").length;
+  const sentCount = sentClaims.length;
 
   // Generate signed URLs for screenshots
   const signedUrls: Record<string, string> = {};
@@ -151,6 +211,8 @@ export default async function AdminCouponsPage({ searchParams }: PageProps) {
           </tbody>
         </table>
       </section>
+
+      {view !== "sent" && <SentCouponHistory claims={sentClaims} />}
     </div>
   );
 }
