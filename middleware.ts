@@ -7,6 +7,7 @@ const PUBLIC_PATH_PREFIXES = [
   "/join-launch-team",
   "/proof-of-purchase",
   "/rsvp",
+  "/signed-copy",
 ];
 
 function isPublicPath(pathname: string) {
